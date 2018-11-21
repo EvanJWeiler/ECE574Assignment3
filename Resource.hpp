@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 #include <iostream>
+#include <vector>
 
 class Resource {
 private:
@@ -22,6 +23,7 @@ public:
     std::string getOperation() const {
         return this->operation;
     }
+
     std::vector<float> getProbabilities() {
         return this->sumOfProbsForTimeStep;
     }
