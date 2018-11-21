@@ -92,6 +92,8 @@ int main(int argc, char *argv[]) {
 	}
 
 	oFile << ") begin" << endl;
+	oFile << "	case (State)" << endl; // still not sure if State is held within all variables
+	oFile << "		";
 
 
 	
