@@ -67,7 +67,13 @@ int main(int argc, char *argv[]) {
 			oFile << " reg";
 		if (var.getUnSigned() == false)
 			oFile << " signed";
-		oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+		if (var.getVarType().compare("parameter") == 0) {
+			oFile << var.getName() << " = " << i << "," << endl << "			";
+		}
+		else {
+			oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+		}
+		i = i + 1;
 	}
 
 	oFile << "always @(";
