@@ -50,6 +50,43 @@ int main(int argc, char *argv[]) {
 
 
 	// writing to output file
+	ofstream oFile;
+	oFile.open(argv[2]);
+	oFile << "'timescale 1ns / 1ps" << endl;
+	oFile << "module TimeVerifier(Clk, Rst, CStart, CEnd, ErrorRst, Error);" << endl;
+	oFile << "   input Clk, Rst;" << endl;
+	oFile << "   CStart, CEnd, ErrorRst;" << endl;
+	oFile << "   output reg Error;" << endl << endl;
+	//question: is there a variable i can pull here to figure how many parameters I will need for a file? 
+	//string tempstring = "";
+	//get var code here
+	// need to make some loop to iterate through and find how many param variables we have 
+	// use that loop to determine code below
+	oFile << "   reg [2:0] State, StateNext;" << endl <<endl;
+	oFile << "   // Comb logic for outputs and next state transitions" << endl;
+	oFile << "   always@(State, CStart, Cend, ErrorRst) begin" << endl;
+	oFile << "		case (State);" << endl;
+	
+	//first param var
+	//pull S_wait from somewhere
+	oFile << " : begin" << endl;
+	oFile << "				Error <= 0;" << endl;
+	oFile << "				if(";
+	//pull the cstart variable or whatever it is contained in
+	oFile << " ==1) begin" << endl;
+	oFile << "					StateNext <= ";
+	//pull the S_Cycle1 var from somewhere
+	oFile << "				end" << endl;
+	oFile << "				else begin" << endl;
+	oFile << "					StateNext <= " << endl;
+	//pull S_wait from var from somewhere
+	oFile << "				end" << endl;
+	oFile << "			end" << endl;
+
+	//second param var
+	//third param var
+	//to wherever we need
+	//will be contained in loop
 //    outputFileCreate(allVariables, argv[3]);
 	
 	return 0;
