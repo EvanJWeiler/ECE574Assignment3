@@ -13,18 +13,24 @@ void mappingToResource(Operation &op, std::vector<Operation> &resDistr, int ts);
 void schedule_ASAP(std::vector<Operation> &allOperations) {
     int maxAsap = 0;
     int associatedDelay = 0;
+    int currMax = 0;
     for (unsigned int i = 0; i < allOperations.size(); ++i) {
         maxAsap = 0;
+        currMax = 0;
         if (allOperations.at(i).getPredecessors().size() == 0)
             allOperations.at(i).setAsapTime(1);
         else {
             for (int j = 0; j < allOperations.at(i).getPredecessors().size(); j++) {
-                if (allOperations.at(i).getPredecessors().at(j)->getAsapTime() > maxAsap) {
+                if (allOperations.at(i).getPredecessors().at(j)->getAsapTime() >= maxAsap) {
                     maxAsap = allOperations.at(i).getPredecessors().at(j)->getAsapTime();
                     associatedDelay = allOperations.at(i).getPredecessors().at(j)->getDelay();
+                    //Edge case for checking ALU then MUL
+                    if (maxAsap + associatedDelay > currMax)
+                        currMax = maxAsap + associatedDelay;
                 }
             }
-            allOperations.at(i).setAsapTime(maxAsap + associatedDelay);
+            allOperations.at(i).setAsapTime(currMax);
+//            allOperations.at(i).setAsapTime(maxAsap + associatedDelay);
         }
     }
 }
@@ -65,7 +71,7 @@ void computeProbabilities(std::vector<Operation> &allOperations, int latency) {
 
 
 std::vector<Resource> computeTypeDistributions(std::vector<Operation> &allOperations, int latency) {
-    vector<Resource> resDistr;
+    std::vector<Resource> resDistr;
     Resource aluRes;
     Resource mulRes;
     Resource divRes;

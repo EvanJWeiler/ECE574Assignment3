@@ -48,7 +48,6 @@ int main(int argc, char *argv[]) {
 
 	// Evan's part (actual comment TBD)
 
-
 	// writing to output file
 //    outputFileCreate(allVariables, argv[3]);
 	
