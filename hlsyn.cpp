@@ -53,34 +53,60 @@ int main(int argc, char *argv[]) {
 	oFile.open(argv[2]);
 	oFile << "'timescale 1ns / 1ps" << endl;
 	oFile << "module TimeVerifier(Clk, Rst, CStart, CEnd, ErrorRst, Error);" << endl;
+	string tempstring = "";
+	for (Variable var : allVariables) {
+		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0) {
+			tempstring += var.getName() + ", ";
+		}
+	}
+	oFile << tempstring << ");" << endl;
 	oFile << "   input Clk, Rst;" << endl;
-	oFile << "   CStart, CEnd, ErrorRst;" << endl;
-	oFile << "   output reg Error;" << endl << endl;
-	//question: is there a variable i can pull here to figure how many parameters I will need for a file? 
-	//string tempstring = "";
-	//get var code here
+	for (Variable var : allVariables) {
+		oFile << "   " << var.getVarType();
+		if (var.getVarType().compare("output") == 0)
+			oFile << " reg";
+		if (var.getUnSigned() == false)
+			oFile << " signed";
+		oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+	}
+
+	oFile << "always @(";
+	//sensing for variable in for if statement (output sample line 23)
+	for (Variable var : allVariables) {
+		if (var.getName().compare("State") == 0)
+			oFile << "State, ";
+		if (var.getName().compare("CStart") == 0)
+			oFile << "CStart, ";
+		if (var.getName().compare("CEnd") == 0)
+			oFile << "CEnd, ";
+		if (var.getName().compare("ErroeRst") == 0)
+			oFile << "ErrorRst, ";
+		if (var.getName().compare("dLTe") == 0)
+			oFile << "dLTe";
+	}
+
+	oFile << ") begin" << endl;
+
+
+	
+
+	
+
+
+	
 	// need to make some loop to iterate through and find how many param variables we have 
 	// use that loop to determine code below
-	oFile << "   reg [2:0] State, StateNext;" << endl <<endl;
-	oFile << "   // Comb logic for outputs and next state transitions" << endl;
-	oFile << "   always@(State, CStart, Cend, ErrorRst) begin" << endl;
-	oFile << "		case (State);" << endl;
+	oFile.close();
+	//second param var
+	//third param var
+	//to wherever we need
+	//will be contained in loop
+
+
+//    outputFileCreate(allVariables, argv[3]);
 	
-	//first param var
-	//pull S_wait from somewhere
-	oFile << " : begin" << endl;
-	oFile << "				Error <= 0;" << endl;
-	oFile << "				if(";
-	//pull the cstart variable or whatever it is contained in
-	oFile << " ==1) begin" << endl;
-	oFile << "					StateNext <= ";
-	//pull the S_Cycle1 var from somewhere
-	oFile << "				end" << endl;
-	oFile << "				else begin" << endl;
-	oFile << "					StateNext <= " << endl;
-	//pull S_wait from var from somewhere
-	oFile << "				end" << endl;
-	oFile << "			end" << endl;
+	return 0;
+};;
 
 	//second param var
 	//third param var
