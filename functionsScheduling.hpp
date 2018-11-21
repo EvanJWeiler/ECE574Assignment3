@@ -57,15 +57,16 @@ void schedule_ALAP(std::vector<Operation> &allOperations, int latency) {
     }
 }
 
-void computeProbabilities(std::vector<Operation> &allOperations, int latency) {
-    for (unsigned int i = 0; i < allOperations.size(); i++) {
-        for (unsigned int j = 0; j <= latency; j++) { //do <= or equal to to have a index for one to latency (i.e each time stamp), we'll just ignore the zero index
-            if (j >= allOperations.at(i).getAsapTime() && j <= allOperations.at(i).getAlapTime())
-                allOperations.at(i).addProbability(1/float(allOperations.at(i).getAlapTime() - allOperations.at(i).getAsapTime() + 1));
-            else
-                allOperations.at(i).addProbability(0.0);
+void computeProbabilities(std::vector<Operation> &ops, int latency) {
+	for (unsigned int i = 0; i < ops.size(); i++) {
+		for (int j = 1; j <= latency; j++) {
+			if (j >= ops.at(i).getAsapTime() and j <= ops.at(i).getAlapTime()) {
+				ops.at(i).addProbability(1/float(ops.at(i).getAlapTime() - ops.at(i).getAsapTime() + 1));
+			} else {
+                ops.at(i).addProbability(0);
+		    }
         }
-    }
+	}
 }
 
 
