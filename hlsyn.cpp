@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
 	allVariables = inputFileToVariables(argv[1], allOperations);
 	
 	// Compute dependency for operations.
-	for (int i = 0; i < (*allOperations).size(); i++) {
+	int i;
+	for (i = 0; i < (*allOperations).size(); i++) {
 		dependentOperation(&(*allOperations).at(i), allOperations);
 	}
 
@@ -111,15 +112,6 @@ int main(int argc, char *argv[]) {
 	//will be contained in loop
 
 
-//    outputFileCreate(allVariables, argv[3]);
-	
-	return 0;
-};;
-
-	//second param var
-	//third param var
-	//to wherever we need
-	//will be contained in loop
 //    outputFileCreate(allVariables, argv[3]);
 	
 	return 0;
