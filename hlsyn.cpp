@@ -90,7 +90,11 @@ int main(int argc, char *argv[]) {
 			oFile << "ErrorRst, ";
 		if (var.getName().compare("dLTe") == 0)
 			oFile << "dLTe";
-	}
+		if(var.getName().compare("reg") == 0)
+			oFile << "reg";
+	}// probably need one for each case e.g. add, sub, mul, div, inc, dec, <, >, reg?? (ask)
+	//thought: whichever operator it detects corresponds to number of cycles? if true which corresponds to which?
+	
 
 	oFile << ") begin" << endl;
 	oFile << "	case (State)" << endl; // still not sure if State is held within all variables
