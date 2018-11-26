@@ -20,11 +20,11 @@ hlsyn cFile latency(int) verilogFile(output.v)
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    
-    if (argc != 4) {
-        cout << "Usage: hlsyn cFile latency verilogFile" << endl;
-        return EXIT_FAILURE;
-    }
+   
+   if (argc != 4) {
+       cout << "Usage: hlsyn cFile latency verilogFile" << endl;
+       return EXIT_FAILURE;
+   }
 
 	vector<Variable> allVariables;
 	vector<Resource> resourceTypes;
@@ -42,10 +42,10 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Send to the force directed scheduling.
-    schedule_ASAP(*allOperations);
-    schedule_ALAP(*allOperations, atoi(argv[2]));
-    computeProbabilities(*allOperations, atoi(argv[2]));
-    vector<Resource> resDistr = computeTypeDistributions(*allOperations, atoi(argv[2]));
+   schedule_ASAP(*allOperations);
+   schedule_ALAP(*allOperations, atoi(argv[2]));
+   computeProbabilities(*allOperations, atoi(argv[2]));
+   vector<Resource> resDistr = computeTypeDistributions(*allOperations, atoi(argv[2]));
 
 	// Evan's part (actual comment TBD)
 

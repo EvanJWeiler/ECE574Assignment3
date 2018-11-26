@@ -60,13 +60,13 @@ void schedule_ALAP(std::vector<Operation> &allOperations, int latency) {
     }
 }
 
-void computeProbabilities(std::vector<Operation> &ops, int latency) {
+void computeProbabilities(std::vector<Operation*> &ops, int latency) {
 	for (unsigned int i = 0; i < ops.size(); i++) {
 		for (int j = 1; j <= latency; j++) {
-			if (j >= ops.at(i).getAsapTime() and j <= ops.at(i).getAlapTime()) {
-				ops.at(i).addProbability(1/float(ops.at(i).getAlapTime() - ops.at(i).getAsapTime() + 1));
+			if (j >= ops.at(i)->getAsapTime() and j <= ops.at(i)->getAlapTime()) {
+				ops.at(i)->addProbability(1/float(ops.at(i)->getAlapTime() - ops.at(i)->getAsapTime() + 1));
 			} else {
-                ops.at(i).addProbability(0);
+                ops.at(i)->addProbability(0);
 		    }
         }
 	}
@@ -74,7 +74,7 @@ void computeProbabilities(std::vector<Operation> &ops, int latency) {
 
 
 
-std::vector<Resource> computeTypeDistributions(std::vector<Operation> &allOperations, int latency) {
+std::vector<Resource> computeTypeDistributions(std::vector<Operation*> &allOperations, int latency) {
     std::vector<Resource> resDistr;
     Resource aluRes;
     Resource mulRes;
@@ -94,41 +94,43 @@ std::vector<Resource> computeTypeDistributions(std::vector<Operation> &allOperat
     
     for (unsigned int ts = 0; ts < latency; ++ts) { //for every timestep
         for (unsigned int i = 0; i < allOperations.size(); ++i) { //for every operation
-            if (allOperations.at(i).getOperation() == "*") //following else ifs map to resources declared above
-                resDistr.at(1).addToProbabilityAtTimeStamp(allOperations.at(i).getProbabilities().at(ts), ts);
-            else if (allOperations.at(i).getOperation() == "/" || allOperations.at(i).getOperation() == "%")
-                resDistr.at(2).addToProbabilityAtTimeStamp(allOperations.at(i).getProbabilities().at(ts), ts);
+            if (allOperations.at(i)->getOperation() == "*") //following else ifs map to resources declared above
+                resDistr.at(1).addToProbabilityAtTimeStamp(allOperations.at(i)->getProbabilities().at(ts), ts);
+            else if (allOperations.at(i)->getOperation() == "/" || allOperations.at(i)->getOperation() == "%")
+                resDistr.at(2).addToProbabilityAtTimeStamp(allOperations.at(i)->getProbabilities().at(ts), ts);
             else //anything not MOD, DIV, or MUL goes to ALU
-                resDistr.at(0).addToProbabilityAtTimeStamp(allOperations.at(i).getProbabilities().at(ts), ts);
+                resDistr.at(0).addToProbabilityAtTimeStamp(allOperations.at(i)->getProbabilities().at(ts), ts);
         }
     }
     
     return resDistr;
 }
 
-void computeSelfForce(std::vector<Resource> &resourceDist, Operation &op) {
+void computeSelfForce(std::vector<Resource> &resourceDist, std::vector<Operation*> &allOps) {
     int resourceIndex;
 
-    if (op.getOperation() == "*") {
-        resourceIndex = 1;
-    } else if (op.getOperation() == "/" or op.getOperation() == "%") {
-        resourceIndex = 2;
-    } else {
-        resourceIndex = 0;
-    }
-    
-    for (int i = op.getAsapTime(); i <= op.getAlapTime(); i++) {
-        float runningSum = 0;
-
-        for (int j = op.getAsapTime(); j <= op.getAlapTime(); j++) {
-            if (i == j) {
-                runningSum += resourceDist.at(resourceIndex).getProbabilities().at(j - 1) * (1 - op.getProbabilities().at(j - 1));
-            } else {
-                runningSum += resourceDist.at(resourceIndex).getProbabilities().at(j - 1) * (0 - op.getProbabilities().at(j - 1));
-            }
+    for (auto &op : allOps) {
+        if (op->getOperation() == "*") {
+            resourceIndex = 1;
+        } else if (op->getOperation() == "/" or op->getOperation() == "%") {
+            resourceIndex = 2;
+        } else {
+            resourceIndex = 0;
         }
+        
+        for (int i = op->getAsapTime(); i <= op->getAlapTime(); i++) {
+            float runningSum = 0;
 
-        op.addToForceAt(i, runningSum);
+            for (int j = op->getAsapTime(); j <= op->getAlapTime(); j++) {
+                if (i == j) {
+                    runningSum += resourceDist.at(resourceIndex).getProbabilities().at(j - 1) * (1 - op->getProbabilities().at(j - 1));
+                } else {
+                    runningSum += resourceDist.at(resourceIndex).getProbabilities().at(j - 1) * (0 - op->getProbabilities().at(j - 1));
+                }
+            }
+
+            op->addToForceAt(i, runningSum);
+        }
     }
 }
 
@@ -136,17 +138,17 @@ void computePredSuccForce(std::vector<Resource> &resourceDist, Operation &op) {
 
 }
 
-void scheduleNodes(std::vector<Operation> &allOps) {
+void scheduleNodes(std::vector<Operation*> &allOps) {
     for (unsigned int i = 0; i < allOps.size(); i++) {
-        int lowIndex = allOps.at(i).getAsapTime();
-        float currLow = allOps.at(i).getForceAt(lowIndex);
-        for (int j = allOps.at(i).getAsapTime(); j <= allOps.at(i).getAlapTime(); j++) {
-            if (allOps.at(i).getForceAt(j) < currLow) {
+        int lowIndex = allOps.at(i)->getAsapTime();
+        float currLow = allOps.at(i)->getForceAt(lowIndex);
+        for (int j = allOps.at(i)->getAsapTime(); j <= allOps.at(i)->getAlapTime(); j++) {
+            if (allOps.at(i)->getForceAt(j) < currLow) {
                 lowIndex = j;
-                currLow = allOps.at(i).getForceAt(lowIndex);
+                currLow = allOps.at(i)->getForceAt(lowIndex);
             }
         }
 
-        allOps.at(i).scheduleAt(lowIndex);
+        allOps.at(i)->scheduleAt(lowIndex);
     }
 }
