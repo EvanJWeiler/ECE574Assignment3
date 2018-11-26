@@ -10,7 +10,7 @@ class Resource {
 private:
     std::string operation;
     std::vector<float> sumOfProbsForTimeStep;
-    
+
 public:
     Resource() {
         this->operation = "undefined";
@@ -27,14 +27,16 @@ public:
     std::vector<float> getProbabilities() {
         return this->sumOfProbsForTimeStep;
     }
-    
+
     //setters
     void setOperation(std::string operation) {
         this->operation = operation;
     }
+
     void addProbability(float probability) {
         this->sumOfProbsForTimeStep.push_back(probability);
     }
+
     void addToProbabilityAtTimeStamp(float probability, int timeStamp) {
         this->sumOfProbsForTimeStep.at(timeStamp) = probability + this->sumOfProbsForTimeStep.at(timeStamp);
     }
