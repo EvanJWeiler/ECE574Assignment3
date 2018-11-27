@@ -18,12 +18,12 @@ using namespace std;
 //File Input
 vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOps);
 
-vector<Variable> compileListOfVariables(string line, vector<Variable> allVariables,	string currType, 
-	string bitWidth, string varNames, Variable tempVar, string delimiter, string currName,	int pos);
+vector<Variable> compileListOfVariables(string line, vector<Variable> allVariables, string currType,
+	string bitWidth, string varNames, Variable tempVar, string delimiter, string currName, int pos);
 
 void compileListOfOperations(string line, vector<Variable> allVariables, vector<Operation*> *allOperations,
-	vector<Variable> currOperand, string val, int count, bool validVar, bool signedFlag,
-	int maxDatawidth, int operandCount,	bool flagIncDec);
+	vector<Variable> currOperand, string val, int count, bool validVar, int currLoop,
+	int maxDatawidth, int operandCount, string loopType, bool flagIncDec);
 
 void dependentOperation(Operation *currOperation, vector<Operation*> *allOperations);
 
