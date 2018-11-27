@@ -23,7 +23,7 @@ vector<Variable> compileListOfVariables(string line, vector<Variable> allVariabl
 
 void compileListOfOperations(string line, vector<Variable> allVariables, vector<Operation*> *allOperations,
 	vector<Variable> currOperand, string val, int count, bool validVar, int currLoop,
-	int maxDatawidth, int operandCount, string loopType, bool flagIncDec);
+	int maxDatawidth, int operandCount, string loopType, string loopVar, bool flagIncDec);
 
 void dependentOperation(Operation *currOperation, vector<Operation*> *allOperations);
 

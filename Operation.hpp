@@ -27,6 +27,7 @@ private:
 	//If/Else and For Loop conditionals
 	int loopContain;
 	std::string loopType;
+	std::string loopVar;
 
 
 public:
@@ -101,6 +102,10 @@ public:
 		return this->loopType;
 	}
 
+	std::string getloopVar() {
+		return this->loopVar;
+	}
+	
 	//setters
 	void setOperation(std::string operation) {
 		this->operation = operation;
@@ -174,5 +179,9 @@ public:
 
 	void setLoopCondition(std::string loopType) {
 		this->loopType = loopType;
+	}
+	
+	void setLoopVar(std::string loopVar) {
+		this->loopVar = loopVar;
 	}
 };

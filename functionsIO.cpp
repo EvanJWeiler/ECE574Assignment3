@@ -3,12 +3,12 @@
 vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOps)
 {
 	//Variable Declaration
-	int maxDatawidth, currLoop = 0, ifNum = 0, pos = 0, operandCount = 0, count = 0;
+	int maxDatawidth, firstInd, secondInd, currLoop = 0, ifNum = 0, pos = 0, operandCount = 0, count = 0;
 	bool flagIncDec, validVar = false;
 
 	ifstream iFile;
 
-	string loopType, line, operand, currType, bitWidth, varNames, currName;
+	string loopType, loopVar, line, operand, currType, bitWidth, varNames, currName;
 	string delimiter = ", ";
 	string modules = "";
 
@@ -31,10 +31,13 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 			getline(iFile, line); //Pull in line
 
 			if (line.find("if") != string::npos && !line.empty()) { 
-				//Signal Going into an If statement
+				//Signal Going into an If statement, string for the variable.
 				ifNum += 1;
 				currLoop += 1;
 				loopType = "if";
+				firstInd = line.find("(");
+				secondInd = line.find(")");
+				loopVar = line.substr(firstInd+2, secondInd-6);
 			}
 			else if (line.find("else") != string::npos && !line.empty()) {
 				//ifNum += 1;
@@ -56,7 +59,7 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 			else {
 				//Make call to the create operations function
 				compileListOfOperations(line, allVariables, &allOperations,
-					currOperand, val, count, validVar, currLoop, maxDatawidth, operandCount, loopType, flagIncDec);
+					currOperand, val, count, validVar, currLoop, maxDatawidth, operandCount, loopType, loopVar, flagIncDec);
 			}
 		}
 	}
@@ -227,7 +230,7 @@ vector<Variable> compileListOfVariables(string line, vector<Variable> allVariabl
 
 void compileListOfOperations(string line, vector<Variable> allVariables, vector<Operation*> *allOperations,
 	vector<Variable> currOperand, string val, int count, bool validVar, int currLoop,
-	int maxDatawidth, int operandCount, string loopType,bool flagIncDec) {
+	int maxDatawidth, int operandCount, string loopType, string loopVar, bool flagIncDec) {
 	istringstream opStream(line);
 	istringstream tempStream(line);
 	int i;
@@ -296,6 +299,7 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 	if (currLoop > 0) {
 		tempOperation->setLoopContain(currLoop);
 		tempOperation->setLoopCondition(loopType);
+		tempOperation->setLoopVar(loopVar);
 	}
 
 	(allOps).push_back(tempOperation);
