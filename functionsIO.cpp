@@ -71,31 +71,93 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 void outputFileCreate(vector<Variable> allVariables, string outFile)
 {
 	ofstream oFile;
-	string modules = "";
-	double critPath = 0.0;
-
+	int i = 1;
 	oFile.open(outFile);
-	oFile << "'timescale 1ns / 1ps" << endl << endl;
-	oFile << "module TopModule(";
-	string tempString = "";
+	oFile << "'timescale 1ns / 1ps" << endl;
+	oFile << "module TimeVerifier(Clk, Rst, CStart, CEnd, ErrorRst, Error);" << endl;
+	string tempstring = "";
 	for (Variable var : allVariables) {
 		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0) {
-			tempString += var.getName() + ", ";
+			tempstring += var.getName() + ", ";
 		}
 	}
-	oFile << tempString << "Clk, Rst);" << endl;
+	oFile << tempstring << ");" << endl;
 	oFile << "   input Clk, Rst;" << endl;
 	for (Variable var : allVariables) {
 		oFile << "   " << var.getVarType();
-		if (var.getVarType().compare("output") == 0)
+		if (var.getVarType().compare("output") == 0) {
 			oFile << " reg";
+			oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ",";
+		}
 		if (var.getUnSigned() == false)
 			oFile << " signed";
-		oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+		if (var.getVarType().compare("parameter") == 0) {
+			oFile << var.getName() << " = " << i << "," << endl << "			";
+		}
+		else {
+			 cout << ";" << endl;
+		}
+		i = i + 1;
 	}
-	oFile << endl << modules << endl;
-	oFile << "endModule" << endl;
+
+	oFile << "always @(";
+	//sensing for variable in for if statement (output sample line 23)
+	for (Variable var : allVariables) {
+		if (var.getName().compare("State") == 0)
+			oFile << "State";
+		if (var.getName().compare("CStart") == 0)
+			oFile << "CStart";
+		if (var.getName().compare("CEnd") == 0)
+			oFile << "CEnd";
+		if (var.getName().compare("ErrorRst") == 0)
+			oFile << "ErrorRst";
+		if (var.getName().compare("dLTe") == 0)
+			oFile << "dLTe";
+		if (var.getName().compare("reg") == 0)
+			oFile << "reg";
+		if (var.getName().compare("div") == 0)
+			oFile << "div";
+		if (var.getName().compare("mul") == 0)
+			oFile << "mul";
+		if (var.getName().compare("add") == 0)
+			oFile << "add";
+		if (var.getName().compare("sub") == 0)
+			oFile << "sub";
+		if (var.getName().compare("dGTe") == 0)
+			oFile << "dGTe";
+		if (var.getName().compare("dEQe") == 0)
+			oFile << "dEQe";
+		if (var.getName().compare("shl") == 0)
+			oFile << "shl";
+		if (var.getName().compare("shr") == 0)
+			oFile << "shr";
+		oFile << ", ";
+	}// probably need one for each case e.g. add, sub, mul, div, inc, dec, <, >, reg?? (ask)
+	//thought: whichever operator it detects corresponds to number of cycles? if true which corresponds to which?
+
+
+	oFile << ") begin" << endl;
+	oFile << "	case (State)" << endl; // still not sure if State is held within all variables
+	oFile << "		";
+
+
+
+
+
+
+
+
+	// need to make some loop to iterate through and find how many param variables we have 
+	// use that loop to determine code below
 	oFile.close();
+	//second param var
+	//third param var
+	//to wherever we need
+	//will be contained in loop
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	oFile.close();
+	
 
 	//cout << "Critical Path : " << critPath << "ns" << endl;
 }
