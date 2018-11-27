@@ -15,7 +15,9 @@ private:
     int asapTime{0};
     int alapTime{0};
 	std::map<int, float> force;
-	int scheduledTime;
+	std::map<int, float> succForce;
+	std::map<int, float> predForce;
+	int scheduledTime{-1};
 
 public:
 	Operation() { //default constructor
@@ -68,6 +70,14 @@ public:
 	float getForceAt(int index) {
 		return this->force[index];
     }
+
+	float getPredForceAt(int index) {
+		return this->predForce[index];
+	}
+
+	float getSuccForceAt(int index) {
+		return this->succForce[index];
+	}
 
 	int getScheduledTime() {
 		return this->scheduledTime;
@@ -128,6 +138,14 @@ public:
 	void addToForceAt(int index, float force) {
         this->force[index] += force;
     }
+
+	void addToPredForceAt(int index, float force) {
+		this->predForce[index] += force;
+	}
+
+	void addToSuccForceAt(int index, float force) {
+		this->succForce[index] += force;
+	}
 
 	void scheduleAt(int index) {
 		this->scheduledTime = index;
