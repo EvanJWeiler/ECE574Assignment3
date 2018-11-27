@@ -10,7 +10,7 @@
 #include <string>
 #include <algorithm>
 //Header dependencies
-#include "Variable.hpp"
+//#include "Variable.hpp"
 #include "Operation.hpp"
 
 using namespace std;

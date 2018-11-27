@@ -2,16 +2,17 @@
 #include <vector>
 #include <algorithm>
 #include <map>
-#include "Operation.hpp"
+#include "functionsIO.hpp"
 #include "Resource.hpp"
 
 void schedule_ASAP(std::vector<Operation> &allOperations);
 void schedule_ALAP(std::vector<Operation> &allOperations, int latency);
-void computeProbabilities(std::vector<Operation> &allOperations, int latency);
-std::vector<Resource> computeTypeDistributions(std::vector<Operation> &allOperations, int latency);
+void computeProbabilities(std::vector<Operation*> &ops, int latency);
+std::vector<Resource> computeTypeDistributions(std::vector<Operation*> &allOperations, int latency);
 void mappingToResource(Operation &op, std::vector<Operation> &resDistr, int ts);
 void computeSelfForce(std::vector<Resource> &resourceDist, Operation &op);
 void computePredSuccForce(std::vector<Resource> &resourceDist, Operation &op);
+void scheduleNodes(std::vector<Operation*> &allOps);
 
 void schedule_ASAP(std::vector<Operation> &allOperations) {
     int maxAsap = 0;
@@ -132,10 +133,6 @@ void computeSelfForce(std::vector<Resource> &resourceDist, std::vector<Operation
             op->addToForceAt(i, runningSum);
         }
     }
-}
-
-void computePredSuccForce(std::vector<Resource> &resourceDist, Operation &op) {
-
 }
 
 void scheduleNodes(std::vector<Operation*> &allOps) {
