@@ -41,10 +41,10 @@ int main(int argc, char *argv[]) {
 	}
 
 	// Send to the force directed scheduling.
-   // schedule_ASAP(*allOperations);
-   // schedule_ALAP(*allOperations, atoi(argv[2]));
-   // computeProbabilities(*allOperations, atoi(argv[2]));
-   // vector<Resource> resDistr = computeTypeDistributions(*allOperations, atoi(argv[2]));
+   schedule_ASAP(*allOperations);
+   schedule_ALAP(*allOperations, atoi(argv[2]));
+   computeProbabilities(*allOperations, atoi(argv[2]));
+   vector<Resource> resDistr = computeTypeDistributions(*allOperations, atoi(argv[2]));
 
 	// Evan's part (actual comment TBD)
 
