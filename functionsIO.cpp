@@ -138,7 +138,18 @@ void outputFileCreate(vector<Variable> allVariables, string outFile)
 
 	oFile << ") begin" << endl;
 	oFile << "	case (State)" << endl; // still not sure if State is held within all variables
-	oFile << "		";
+	oFile << "		S_Wait : begin" << endl;//always going to be a wait state
+	oFile << "			Error <= 0;" << endl;
+	oFile << "			if (" << endl; //FIX ME: need something here  to call cycle number
+
+
+
+	oFile << "			end" << endl << "			else begin" << endl;
+	oFile << "				StateNext <= S_Wait;" << endl;
+	oFile << "			end" << endl << "		end" << endl;
+
+	//FIX: HOW DO I PULL NUMBER OF CYCLES? HOW DOES IT CORRESPOND TO OPERATOR? IS IT CONTAINED IN ITS OWN VAR?
+
 
 
 
