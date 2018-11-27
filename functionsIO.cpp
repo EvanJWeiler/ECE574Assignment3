@@ -1,21 +1,21 @@
 #include "functionsIO.hpp"
 
-vector<Variable> inputFileToVariables(string fileName, vector<Operation> *allOps)
+vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOps)
 {
 	//Variable Declaration
-	int maxDatawidth, pos = 0, operandCount = 0, count = 0;
-	bool signedFlag, flagIncDec, validVar = false;
+	int maxDatawidth, currLoop = 0, ifNum = 0, pos = 0, operandCount = 0, count = 0;
+	bool flagIncDec, validVar = false;
 
 	ifstream iFile;
 
-	string line, operand, currType, bitWidth, varNames, currName;
+	string loopType, line, operand, currType, bitWidth, varNames, currName;
 	string delimiter = ", ";
 	string modules = "";
 
 	Variable tempVar;
 	vector<Variable> allVariables;
 	vector<Variable> currOperand;
-	vector<Operation> allOperations = *allOps;
+	vector<Operation*> allOperations = *allOps;
 	iFile.open(fileName); //THIS IS THE ONE BOYS
 
 	if (iFile.is_open()) {
@@ -23,7 +23,6 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation> *allOps
 			string val;
 			count = 0;
 			maxDatawidth = 0;
-			signedFlag = true;
 			flagIncDec = false;
 			validVar = false;
 			currOperand.clear();
@@ -31,15 +30,33 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation> *allOps
 
 			getline(iFile, line); //Pull in line
 
-								  //Decompisition of Input, Output, Wire
-			if (line.find("=") == string::npos && !line.empty()) {
+			if (line.find("if") != string::npos && !line.empty()) { 
+				//Signal Going into an If statement
+				ifNum += 1;
+				currLoop += 1;
+				loopType = "if";
+			}
+			else if (line.find("else") != string::npos && !line.empty()) {
+				//ifNum += 1;
+				currLoop += 1;
+				loopType = "else";
+			}
+			else if (line.find("}") != string::npos && !line.empty()) {
+				//Signal and End Of Loop
+				if(loopType != "else")
+					currLoop -= 1;
+			}
+			else if (line.find_first_not_of(" ") == string::npos) {
+				continue; //Line of spaces
+			}
+			else if (line.find("=") == string::npos && !line.empty()) {
 				//Make call to the compileVariables function
 				allVariables = compileListOfVariables(line, allVariables, currType, bitWidth, varNames, tempVar, delimiter, currName, pos);
 			}
 			else {
 				//Make call to the create operations function
 				compileListOfOperations(line, allVariables, &allOperations,
-					currOperand, val, count, validVar, signedFlag, maxDatawidth, operandCount, flagIncDec);
+					currOperand, val, count, validVar, currLoop, maxDatawidth, operandCount, loopType, flagIncDec);
 			}
 		}
 	}
@@ -80,19 +97,19 @@ void outputFileCreate(vector<Variable> allVariables, string outFile)
 	oFile << "endModule" << endl;
 	oFile.close();
 
-	cout << "Critical Path : " << critPath << "ns" << endl;
+	//cout << "Critical Path : " << critPath << "ns" << endl;
 }
 
 //For seperation and creating variables by an input line.  Return the newest vector.
-vector<Variable> compileListOfVariables(string line, vector<Variable> allVariables, 
-										string currType, string bitWidth, string varNames,
-										Variable tempVar, string delimiter, string currName,
-										int pos) {
+vector<Variable> compileListOfVariables(string line, vector<Variable> allVariables,
+	string currType, string bitWidth, string varNames,
+	Variable tempVar, string delimiter, string currName,
+	int pos) {
 	istringstream lineStream(line);
 	lineStream >> currType >> bitWidth;
 	getline(lineStream, varNames);
 	varNames = varNames.substr(1, varNames.length() - 1);
-	
+
 	size_t begin = bitWidth.find_first_of("01234456789");
 	tempVar.setUnSigned(false);	//Needs to be set false again after seeing an unsigned number
 	while ((pos = varNames.find(delimiter)) != string::npos) {
@@ -135,16 +152,15 @@ vector<Variable> compileListOfVariables(string line, vector<Variable> allVariabl
 }
 
 
-void compileListOfOperations(string line, vector<Variable> allVariables, vector<Operation> *allOperations,
-										vector<Variable> currOperand, string val, int count, bool validVar, bool signedFlag,
-										int maxDatawidth, int operandCount,
-										bool flagIncDec) {
+void compileListOfOperations(string line, vector<Variable> allVariables, vector<Operation*> *allOperations,
+	vector<Variable> currOperand, string val, int count, bool validVar, int currLoop,
+	int maxDatawidth, int operandCount, string loopType,bool flagIncDec) {
 	istringstream opStream(line);
 	istringstream tempStream(line);
 	int i;
 	if (line.compare("") == 0) //Continue on empty lines
-		return;	
-	vector<Operation> allOps = *allOperations;
+		return;
+	vector<Operation*> allOps = *allOperations;
 	//determining dependencies
 	string var1, var2, operand;
 	tempStream >> var1;
@@ -192,32 +208,31 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 	//Check if we need special operand for Inc and Dec
 	if (flagIncDec == true) {
 		if (operand.compare("+") == 0)
-			operand = "++";	
+			operand = "++";
 		else
 			operand = "--";
 	}
 	//Create operand.
-	Operation tempOperation;
-	tempOperation.setOperation(operand);
-	tempOperation.setOutput(currOperand.at(0));
+	Operation *tempOperation = new Operation;// (Operation*)malloc(sizeof(Operation));
+	tempOperation->setOperation(operand);
+	tempOperation->setOutput(currOperand.at(0));
 	currOperand.erase(currOperand.begin());
-	tempOperation.setInputs(currOperand);
+	tempOperation->setInputs(currOperand);
+	
+	//Add info regarding the Loop to the operation.
+	if (currLoop > 0) {
+		tempOperation->setLoopContain(currLoop);
+		tempOperation->setLoopCondition(loopType);
+	}
 
-	allOps.push_back(tempOperation);
-	//Add operation to the list
-	//(*allOperations).push_back(tempOperation);
+	(allOps).push_back(tempOperation);
 	operandCount += 1;
 	*allOperations = allOps;
 	return;
 }
 
 //Function will set the currOperations predecessor nodes and then set it as a successor of any of these nodes
-void dependentOperation(Operation *currOperation, vector<Operation> *allOperations) {
-	//TODO: Add Logic to set its Pred, and set its pred's successor Node
-	//Iterate through all operations, 
-	//if the inputs of this operation are an output of any then
-	//Set tempOp -> pred to that node
-	// TempOp->thatNode = set its successor node.
+void dependentOperation(Operation *currOperation, vector<Operation*> *allOperations) {
 	Operation currOp = *currOperation;
 	int i, j;
 	//Null Check
@@ -225,12 +240,12 @@ void dependentOperation(Operation *currOperation, vector<Operation> *allOperatio
 
 	for (i = 0; i < (*allOperations).size(); i++) {
 		//Check all output vars against inputs
-        printf("%lu", currOp.getInputs().size());
+		//printf("%lu", currOp.getInputs().size());
 		for (j = 0; j < currOp.getInputs().size(); j++) {
-			if (currOp.getInputs().at(j).getName().compare(allOperations->at(i).getOutput().getName()) == 0) {
+			if (currOp.getInputs().at(j).getName().compare((allOperations)->at(i)->getOutput().getName()) == 0) {
 				//This node is a predecessor
-                (*allOperations).at(i).addSuccessor(currOperation);
-                currOp.addPredecessor(&(*allOperations).at(i));
+				(allOperations)->at(i)->addSuccessor(currOperation);
+				currOp.addPredecessor((*allOperations).at(i));
 			}
 		}
 	}
