@@ -74,7 +74,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile)
 	int i = 1;
 	oFile.open(outFile);
 	oFile << "'timescale 1ns / 1ps" << endl;
-	oFile << "module TimeVerifier(Clk, Rst, CStart, CEnd, ErrorRst, Error);" << endl;
+	oFile << "module TimeVerifier(Clk, Rst, ";
 	string tempstring = "";
 	for (Variable var : allVariables) {
 		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0) {
@@ -90,7 +90,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile)
 			oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ",";
 		}
 		if (var.getUnSigned() == false)
-			oFile << " signed";
+			oFile << " signed" << var.getName() << ",";
 		if (var.getVarType().compare("parameter") == 0) {
 			oFile << var.getName() << " = " << i << "," << endl << "			";
 		}
