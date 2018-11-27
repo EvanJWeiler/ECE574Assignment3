@@ -27,17 +27,17 @@ int main(int argc, char *argv[]) {
 
 	vector<Variable> allVariables;
 	vector<Resource> resourceTypes;
-	vector<Operation> allOps;
-	vector<Operation> *allOperations = &allOps;
+	vector<Operation*> allOps;
+	vector<Operation*> *allOperations = &allOps;
 	// IO, we must set up the writing of the variables to the outputs [Handled once AllVars returns]
 	// Create vector of all Variables [Done with allVariables]
 	// Map the Operations TODO:[Not Done]
-	allVariables = inputFileToVariables(argv[1], allOperations);
+	allVariables = inputFileToVariables(argv[1], (allOperations));
 	
 	// Compute dependency for operations.
 	int i;
 	for (i = 0; i < (*allOperations).size(); i++) {
-		dependentOperation(&(*allOperations).at(i), allOperations);
+		dependentOperation((allOperations)->at(i), (allOperations));
 	}
 
 	// Send to the force directed scheduling.
