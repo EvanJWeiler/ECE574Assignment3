@@ -10,6 +10,7 @@ private:
 	int delay;
 	std::vector<Variable> inputs;
 	Variable output;
+	std::string operationOutput;
 
 	//Nodes connected via predecessor and successor
 	std::vector<Operation*> predecessor; //All Operation nodes that are predecessors 
@@ -106,6 +107,10 @@ public:
 		return this->loopVar;
 	}
 	
+	std::string getOperationOutput(){
+		return this->operationOutput;
+	}
+	
 	//setters
 	void setOperation(std::string operation) {
 		this->operation = operation;
@@ -183,5 +188,9 @@ public:
 	
 	void setLoopVar(std::string loopVar) {
 		this->loopVar = loopVar;
+	}
+	
+	void setOperationOutput(std::string operation){
+		this->operationOutput = operation;
 	}
 };
