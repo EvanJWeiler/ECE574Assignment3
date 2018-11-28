@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 
 	// writing to output file
 	
-    outputFileCreate(allVariables, argv[3]);
+    outputFileCreate(allVariables, argv[3], *allOperations);
 	
 	return 0;
 };
