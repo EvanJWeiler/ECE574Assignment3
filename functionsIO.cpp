@@ -253,7 +253,7 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 	tempOperation->setOutput(currOperand.at(0));
 	currOperand.erase(currOperand.begin());
 	tempOperation->setInputs(currOperand);
-	
+	tempOperation->setOperationOutput(line);
 	//Add info regarding the Loop to the operation.
 	if (currLoop > 0) {
 		tempOperation->setLoopContain(currLoop);
