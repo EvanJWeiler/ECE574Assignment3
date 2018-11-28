@@ -114,10 +114,11 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 			}
 	}
 	oFile << endl << endl << endl;
+	//find max not last
 	for (Operation* op : *allOps) {
-		i = op->getScheduledTime();
-		
-	}
+		if (op->getScheduledTime() > i)
+			i = op->getScheduledTime();
+	}	
 
 
 	oFile << "   parameter S_CycleEnd = " << i + 1 << "," << endl;
@@ -139,16 +140,16 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	oFile << "	   end" << endl;
 	int j = 1;
 	bool state1 = false;
-
+	//find max not last time
 	for (Operation* op : *allOps) {
-		i = op->getScheduledTime();
-
-	}
+		if (op->getScheduledTime() > i)
+			i = op->getScheduledTime();
+	}	
 	
 	//for (Variable var : allVariables)
-	while (j != i) {
+	while (j <= i) {
 		for (Operation* op : *allOps) {
-			if (op->getScheduledTime() <= i) {
+			if (op->getScheduledTime() == j) {
 				if (state1 == false) {
 					oFile << "	   State" << j << ": begin" << endl;
 					state1 = true;
