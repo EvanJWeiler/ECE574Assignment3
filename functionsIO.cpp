@@ -71,7 +71,7 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 	return allVariables;
 }
 
-void outputFileCreate(vector<Variable> allVariables, string outFile){
+void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operation*> *allOps){
 	ofstream oFile;
 	int i = 1;
 	//oFile.open("C:/Users/lknot/OneDrive/Desktop/output.txt");
