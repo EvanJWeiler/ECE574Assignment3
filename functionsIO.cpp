@@ -98,7 +98,6 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 			if (var.getVarType().compare("variable") == 0) {
 				oFile << "   " << var.getVarType();
 				if (var.getName().length() == 1) {
-					oFile << " " << var.getName();
 					oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 				}
 				else {
@@ -108,7 +107,6 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 
 			if ((var.getUnSigned() == false) && var.getVarType().compare("variable") != 0 && var.getVarType().compare("output") != 0) {
 				oFile << "   " << var.getVarType();
-				oFile << " " << var.getName();
 				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 			}
 			else {
@@ -128,10 +126,39 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 		i = i - 1;
 	}
 	oFile << "	     S_Wait = 0;" << endl;
+	oFile << "   reg [2:0] State, StateNext;" << endl;
 	oFile << endl << endl;
 	oFile << "always @(CStart, CEnd, ErrorRst, Error) begin";
 	oFile << endl << endl;
 	oFile << "	case (State) begin" << endl;
+	oFile << "	   Wait: begin" << endl;
+	oFile << "	      if(CStart == 1)" << endl;
+	oFile << "	         StateNext <= State1;" << endl;
+	oFile << "	      else" << endl;
+	oFile << "	         StateNext <= wait;" << endl;
+	oFile << "	   end" << endl;
+	int j = 1;
+	bool state1 = false;
+
+	for (Operation* op : *allOps) {
+		i = op->getScheduledTime();
+
+	}
+	
+	//for (Variable var : allVariables)
+	while (j != i) {
+		for (Operation* op : *allOps) {
+			if (op->getScheduledTime() <= i) {
+				if (state1 == false) {
+					oFile << "	   State" << j << ": begin" << endl;
+					state1 = true;
+				}
+				oFile << "	      " << op->getOperationOutput() << ";" << endl;
+			}
+		}
+		state1 = false;
+		j = j + 1;
+	}
 
 	oFile.close();
 }
