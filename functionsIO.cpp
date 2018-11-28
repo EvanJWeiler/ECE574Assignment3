@@ -71,71 +71,54 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 	return allVariables;
 }
 
-void outputFileCreate(vector<Variable> allVariables, string outFile)
-{
+void outputFileCreate(vector<Variable> allVariables, string outFile){
 	ofstream oFile;
 	int i = 1;
+	//oFile.open("C:/Users/lknot/OneDrive/Desktop/output.txt");
 	oFile.open(outFile);
 	oFile << "'timescale 1ns / 1ps" << endl;
 	oFile << "module TimeVerifier(Clk, Rst, ";
 	string tempstring = "";
+	string temp2 = "";
 	for (Variable var : allVariables) {
-		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0) {
+		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0 || var.getVarType().compare("variable") == 0) {
 			tempstring += var.getName() + ", ";
 		}
 	}
 	oFile << tempstring << ");" << endl;
 	oFile << "   input Clk, Rst;" << endl;
 	for (Variable var : allVariables) {
-		oFile << "   " << var.getVarType();
-		if (var.getVarType().compare("output") == 0) {
-			oFile << " reg";
-			oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ",";
-		}
-		if (var.getUnSigned() == false)
-			oFile << " signed" << var.getName() << ",";
-		if (var.getVarType().compare("parameter") == 0) {
-			oFile << var.getName() << " = " << i << "," << endl << "			";
-		}
-		else {
-			 cout << ";" << endl;
-		}
-		i = i + 1;
+			if (var.getVarType().compare("output") == 0) {
+				oFile << "   " << var.getVarType();
+				oFile << " reg";
+				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ",";
+			}
+			if (var.getVarType().compare("variable") == 0) {
+				oFile << "   output signed ";
+				oFile << " " << var.getName() << ";" << endl;
+			}
+
+			if ((var.getUnSigned() == false) && var.getVarType().compare("variable") != 0) {
+				oFile << "   " << var.getVarType();
+				oFile << " signed " << var.getName() << ";" << endl;
+			}
+			if (var.getVarType().compare("parameter") == 0) {
+				oFile << "   " << var.getVarType();
+				oFile << var.getName() << " = " << i << "," << endl << "			";
+			}
+			else {
+				cout << ";" << endl;
+			}
+			i = i + 1;
+		
 	}
 
 	oFile << "always @(";
 	//sensing for variable in for if statement (output sample line 23)
-	for (Variable var : allVariables) {
-		if (var.getName().compare("State") == 0)
-			oFile << "State";
-		if (var.getName().compare("CStart") == 0)
-			oFile << "CStart";
-		if (var.getName().compare("CEnd") == 0)
-			oFile << "CEnd";
-		if (var.getName().compare("ErrorRst") == 0)
-			oFile << "ErrorRst";
-		if (var.getName().compare("dLTe") == 0)
-			oFile << "dLTe";
-		if (var.getName().compare("reg") == 0)
-			oFile << "reg";
-		if (var.getName().compare("div") == 0)
-			oFile << "div";
-		if (var.getName().compare("mul") == 0)
-			oFile << "mul";
-		if (var.getName().compare("add") == 0)
-			oFile << "add";
-		if (var.getName().compare("sub") == 0)
-			oFile << "sub";
-		if (var.getName().compare("dGTe") == 0)
-			oFile << "dGTe";
-		if (var.getName().compare("dEQe") == 0)
-			oFile << "dEQe";
-		if (var.getName().compare("shl") == 0)
-			oFile << "shl";
-		if (var.getName().compare("shr") == 0)
-			oFile << "shr";
-		oFile << ", ";
-	}// probably need one for each case e.g. add, sub, mul, div, inc, dec, <, >, reg?? (ask)
+	/*for (Variable var : allVariables) {
+		
+	}
+	// probably need one for each case e.g. add, sub, mul, div, inc, dec, <, >, reg?? (ask)
 	//thought: whichever operator it detects corresponds to number of cycles? if true which corresponds to which?
 
 
@@ -150,29 +133,9 @@ void outputFileCreate(vector<Variable> allVariables, string outFile)
 	oFile << "			end" << endl << "			else begin" << endl;
 	oFile << "				StateNext <= S_Wait;" << endl;
 	oFile << "			end" << endl << "		end" << endl;
-
+	*/
 	//FIX: HOW DO I PULL NUMBER OF CYCLES? HOW DOES IT CORRESPOND TO OPERATOR? IS IT CONTAINED IN ITS OWN VAR?
-
-
-
-
-
-
-
-
-
-	// need to make some loop to iterate through and find how many param variables we have 
-	// use that loop to determine code below
 	oFile.close();
-	//second param var
-	//third param var
-	//to wherever we need
-	//will be contained in loop
-	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	oFile.close();
-	
-
 	//cout << "Critical Path : " << critPath << "ns" << endl;
 }
 
