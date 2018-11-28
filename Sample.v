@@ -1,94 +1,66 @@
 `timescale 1 ns/1 ns
-module TimeVerifier(Clk, Rst, CStart, CEnd, ErrorRst, Error);
+module TimeVerifier(Clk, Rst, CStart, CEnd, ErrorRst, Error, a, b, c, z, x);
    input Clk, Rst;
    input CStart, CEnd, ErrorRst;
    output reg Error;
    
    //Variables need to be added from allVariables - was there for the last project...
-   input [15:0] a, b, c, d;
-   output reg dLTe;
-   output reg [15:0] e, f;
+   input [31:0] a, b, c;
+   output reg [31:0] z, x;
+   variable [31:0] d, e, f, g, h;
+   variable unsigned dLTe, dEQe;
    
    parameter S_Wait = 0, 
-             S_Cycle1 = 1, 
-             S_Cycle2 = 2, 
-             S_Cycle3 = 3
-             S_CycleEnd = 4, 
-             S_Error = 5;
+             State1 = 1, 
+             State2 = 2, 
+             State3 = 3
+             State4 = 4, 
+             State5 = 5 
+             S_CycleEnd = 6;
              
    reg [2:0] State, StateNext;
    
    // Comb logic for outputs and next state transitions that is constant
-   //always @(State, CStart, CEnd, ErrorRst) begin
+   always @(State, CStart, CEnd, ErrorRst) begin
       //FOR IF statements we must sense for the variable ex: if(dLTe)
-   always @(State, CStart, CEnd, ErrorRst, dLTe) begin
+   //always @(State, CStart, CEnd, ErrorRst, dLTe) begin
          
-      case (State) 
-         S_Wait : begin
-            Error <= 0;
-            if (CStart == 1) begin
-               StateNext <= S_Cycle1;
-            end 
-            else begin
-               StateNext <= S_Wait;
-            end
+      case (State) begin
+         Wait: begin
+            if(CStart == 1)
+               NextState <= State1;
+            else
+               NextState <= Wait;
          end
-         
-         S_Cycle1 : begin
-            Error <= 0;
-            //Operations will have to be added based on scheduled time
-            e = a + b;
-            dLTe = a < b;
-            if (CEnd == 1) begin
-               StateNext <= S_CycleEnd;
-            end
-            else begin 
-               StateNext <= S_Cycle2;
-            end
+         State1: begin
+            d <= a + b;		//Based on schedule time of 1
+            e <= a + c;		//Based on schedule time of 1
+            f <= a - b;		//Based on schedule time of 1
+            NextState <= State2;
          end
-         
-         S_Cycle2 : begin
-            Error <= 0;
-            //Operations will have to be added based on scheduled time  WITH IF STATEMENT
-            f = dLTe ? c : d;
-            if (dLTe) begin
-               StateNext <= S_Cycle3;
-            end
-            else if (CEnd == 1) begin
-               StateNext <= S_CycleEnd;
-            end
-            else begin
-               StateNext <= S_Error;
-            end
+         State2: begin
+            dEQe <= d == e;		//Based on schedule time of 2
+            dLTe <= d < e;		//Based on schedule time of 2
+            NextState <= State3;
          end
-         
-         S_Cycle3 : begin
-            Error <= 0;
-            e <= b + c;
-            if (CEnd == 1)
-               StateNext <= S_CycleEnd;
-            else 
-               StateNext <= S_Error;            
+         State3: begin
+            g <= dLTe ? d : e;	//Based on schedule time of 3
+            NextState <= State4;
          end
-         
-         S_CycleEnd : begin
-            Error <= 0;
-            if (CEnd == 1) begin
-               StateNext <= S_Error;
-            end
-            else begin
-               StateNext <= S_Wait;
-            end
+         State4: begin
+            h <= dEQe ? g : f;	//Based on schedule time of 4
+            x <= g << dLTe;		//Based on schedule time of 4
+            NextState <= State5;
          end
-         
-         S_Error : begin
-             Error <= 1;
-             if (ErrorRst == 1) begin
-                StateNext <= S_Wait;
-             end
-             else begin
-                StateNext <= S_Error;
-             end
+         State5: begin
+            z <= h >> dEQe;		//Based on schedule time of 5
+            NextState <= S_CycleEnd;
+         end
+         S_CycleEnd: begin
+            if(Rst == 1)
+               NextState <= Wait;
+            else
+               NextState <= S_CycleEnd;
          end
       endcase
    end
