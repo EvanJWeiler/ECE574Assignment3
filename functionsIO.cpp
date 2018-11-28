@@ -91,21 +91,17 @@ void outputFileCreate(vector<Variable> allVariables, string outFile){
 			if (var.getVarType().compare("output") == 0) {
 				oFile << "   " << var.getVarType();
 				oFile << " reg";
-				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ",";
+				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 			}
 			if (var.getVarType().compare("variable") == 0) {
 				oFile << "   output signed ";
 				oFile << " " << var.getName() << ";" << endl;
 			}
 
-			if ((var.getUnSigned() == false) && var.getVarType().compare("variable") != 0) {
+			if ((var.getUnSigned() == false) && var.getVarType().compare("variable") != 0 && var.getVarType().compare("output") != 0) {
 				oFile << "   " << var.getVarType();
 				oFile << " signed " << var.getName() << ";" << endl;
-			}
-			if (var.getVarType().compare("parameter") == 0) {
-				oFile << "   " << var.getVarType();
-				oFile << var.getName() << " = " << i << "," << endl << "			";
-			}
+			}		
 			else {
 				cout << ";" << endl;
 			}
