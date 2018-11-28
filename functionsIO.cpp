@@ -81,12 +81,14 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	string tempstring = "";
 	string temp2 = "";
 	for (Variable var : allVariables) {
-		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0 || var.getVarType().compare("variable") == 0) {
+		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0 ) {
 			tempstring += var.getName() + ", ";
 		}
 	}
 	oFile << tempstring << ");" << endl;
 	oFile << "   input Clk, Rst;" << endl;
+	oFile << "   input CStart, CEnd, ErrorRst;" << endl;
+	oFile << "   output Error;" << endl << endl;
 	for (Variable var : allVariables) {
 			if (var.getVarType().compare("output") == 0) {
 				oFile << "   " << var.getVarType();
@@ -94,45 +96,44 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 			}
 			if (var.getVarType().compare("variable") == 0) {
-				oFile << "   output signed ";
-				oFile << " " << var.getName() << ";" << endl;
+				oFile << "   " << var.getVarType();
+				if (var.getName().length() == 1) {
+					oFile << " " << var.getName();
+					oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+				}
+				else {
+					oFile << " " <<  "unsigned "  << var.getName() << ";" << endl;
+				}
 			}
 
 			if ((var.getUnSigned() == false) && var.getVarType().compare("variable") != 0 && var.getVarType().compare("output") != 0) {
 				oFile << "   " << var.getVarType();
-				oFile << " signed " << var.getName() << ";" << endl;
-			}		
+				oFile << " " << var.getName();
+				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+			}
 			else {
 				cout << ";" << endl;
 			}
-			i = i + 1;
+	}
+	oFile << endl << endl << endl;
+	for (Operation* op : *allOps) {
+		i = op->getScheduledTime();
 		
 	}
 
-	oFile << "always @(";
-	//sensing for variable in for if statement (output sample line 23)
-	/*for (Variable var : allVariables) {
-		
+
+	oFile << "   parameter S_CycleEnd = " << i + 1 << "," << endl;
+	while (i >> 0) {
+		oFile << "	     State" << i << " = " << i << "," << endl;
+		i = i - 1;
 	}
-	// probably need one for each case e.g. add, sub, mul, div, inc, dec, <, >, reg?? (ask)
-	//thought: whichever operator it detects corresponds to number of cycles? if true which corresponds to which?
+	oFile << "	     S_Wait = 0;" << endl;
+	oFile << endl << endl;
+	oFile << "always @(CStart, CEnd, ErrorRst, Error) begin";
+	oFile << endl << endl;
+	oFile << "	case (State) begin" << endl;
 
-
-	oFile << ") begin" << endl;
-	oFile << "	case (State)" << endl; // still not sure if State is held within all variables
-	oFile << "		S_Wait : begin" << endl;//always going to be a wait state
-	oFile << "			Error <= 0;" << endl;
-	oFile << "			if (" << endl; //FIX ME: need something here  to call cycle number
-
-
-
-	oFile << "			end" << endl << "			else begin" << endl;
-	oFile << "				StateNext <= S_Wait;" << endl;
-	oFile << "			end" << endl << "		end" << endl;
-	*/
-	//FIX: HOW DO I PULL NUMBER OF CYCLES? HOW DOES IT CORRESPOND TO OPERATOR? IS IT CONTAINED IN ITS OWN VAR?
 	oFile.close();
-	//cout << "Critical Path : " << critPath << "ns" << endl;
 }
 
 //For seperation and creating variables by an input line.  Return the newest vector.
