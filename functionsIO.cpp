@@ -14,6 +14,7 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 
 	Variable tempVar;
 	vector<Variable> allVariables;
+	vector<string> statements;
 	vector<Variable> currOperand;
 	vector<Operation*> allOperations = *allOps;
 	iFile.open(fileName); //THIS IS THE ONE BOYS
@@ -30,14 +31,16 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 
 			getline(iFile, line); //Pull in line
 
-			if (line.find("if") != string::npos && !line.empty()) { 
+			if (line.find("if") != string::npos && !line.empty()) {
 				//Signal Going into an If statement, string for the variable.
 				ifNum += 1;
 				currLoop += 1;
-				loopType = "if";
+				loopType = "if"; 
 				firstInd = line.find("(");
 				secondInd = line.find(")");
-				loopVar = line.substr(firstInd+2, secondInd-6);
+				loopVar = line.substr(firstInd + 2, secondInd - 6); //Fix when second if ends!!!
+				statements.push_back(loopVar);
+
 			}
 			else if (line.find("else") != string::npos && !line.empty()) {
 				//ifNum += 1;
@@ -46,8 +49,11 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 			}
 			else if (line.find("}") != string::npos && !line.empty()) {
 				//Signal and End Of Loop
-				if(loopType != "else")
+				if (loopType != "else") {
 					currLoop -= 1;
+					loopVar = statements.at(0);
+					statements.pop_back();
+				}
 			}
 			else if (line.find_first_not_of(" ") == string::npos) {
 				continue; //Line of spaces
@@ -72,13 +78,13 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 	return allVariables;
 }
 
-void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operation*> *allOps){
+void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operation*> *allOps) {
 	ofstream oFile;
 	int i = 1;
 	//oFile.open("C:/Users/lknot/OneDrive/Desktop/output.txt");
 	oFile.open(outFile);
 	oFile << "`timescale 1ns / 1ps" << endl;
-	oFile << "module TimeVerifier(";
+	oFile << "module TimeVerifier( ";
 	string tempstring = "";
 	string temp2 = "";
 	for (Variable var : allVariables) {
@@ -132,15 +138,15 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 		if(op->getScheduledTime() > i)
 			i = op->getScheduledTime();
 	}
+	int numBits = int(pow(i+2, .5));
 
-	int numBits = pow(i+2, .5);
 	oFile << "   parameter S_CycleEnd = " << i + 1 << "," << endl;
 	while (i >> 0) {
 		oFile << "	     State" << i << " = " << i << "," << endl;
 		i = i - 1;
 	}
 	oFile << "	     S_Wait = 0;" << endl;
-	oFile << "   reg [" << numBits << ":0] State, StateNext;" << endl;
+	oFile << "   reg [" << numBits <<":0] State, StateNext;" << endl;
 	oFile << endl << endl;
 	oFile << "always @(CStart, CEnd, ErrorRst, Error) begin";
 	oFile << endl << endl;
@@ -153,29 +159,62 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	oFile << "	   end" << endl;
 	int j = 1;
 	bool state1 = false;
-
+	bool loopFound = false;
 	for (Operation* op : *allOps) {
 		if (op->getScheduledTime() > i)
 			i = op->getScheduledTime();
 	}	
 	//for (Variable var : allVariables)
 	while (j <= i) {
+		if (state1 == false) {
+			oFile << "	   State" << j << ": begin" << endl;
+			state1 = true;
+		}
 		for (Operation* op : *allOps) {
 			if (op->getScheduledTime() == j) {
-				if (state1 == false) {
-					oFile << "	   State" << j << ": begin" << endl;
-					state1 = true;
+				if (op->getLoopContain() > 0) {
+					//Some type of loop which type
+					if(op->getloopType().find("if") != string::npos)
+						oFile << "	      " << "if(" << op->getloopVar() << ") begin " << endl;
+					else
+						oFile << "	      " << "else begin " << endl;
+					//currLoop = op->getLoopContain();
+					loopFound = true;
+					//continue;
 				}
 				oFile << "	      " << op->getOperationOutput() << ";" << endl;
+				//Need to check if next operation is in the loop other wise end.
+				if (op->getLoopContain() > 0) {
+					oFile << "	      end" << endl;
+				}
 			}
 		}
-		if(j < i)
-				oFile << "	      StateNext <= State" << j + 1 << ";" << endl;
+		//For those to be in if's in this state
+		int currLoop = 0;
+		/*if (loopFound == true) {
+			for (Operation* op : *allOps) {
+				if (op->getScheduledTime() == j) {
+					if (op->getLoopContain() > 0 && currLoop == 0) {
+						string ifS = "if";
+						if (op->getloopType().find("if") != string::npos)
+							oFile << "	      " << "if(" << op->getloopVar() << ") begin" << endl;
+						else
+							oFile << "	      " << "else begin" << endl;
+						currLoop += 1;
+					}
+					oFile << "	      " << op->getOperationOutput() << ";" << endl;
+				}
+			}
+			oFile << "	      end" << endl;
+		}*/
+		if (j < i)
+			oFile << "	      StateNext <= State" << j + 1 << ";" << endl;
 		else if (j == i)
 			oFile << "	      StateNext <= S_CycleEnd;" << endl;
 		oFile << "	   end" << endl;
 
 		state1 = false;
+		loopFound = false;
 		j = j + 1;
 	}
 
@@ -337,7 +376,7 @@ void dependentOperation(Operation *currOperation, vector<Operation*> *allOperati
 	Operation currOp = *currOperation;
 	int i, j;
 	bool alreadyIn = false, passedCurrOp = false, added = false;
-
+	
 	//Null Check
 	if ((*allOperations).empty() == true) return;
 
@@ -376,7 +415,7 @@ void dependentOperation(Operation *currOperation, vector<Operation*> *allOperati
 			}
 		}
 	}
-	//*allOperations = &allOps;
+
 	*currOperation = currOp;
 	//Return
 }
