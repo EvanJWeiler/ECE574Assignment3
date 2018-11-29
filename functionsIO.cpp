@@ -1,4 +1,6 @@
 #include "functionsIO.hpp"
+#include "math.h"
+//#include <cmath>
 
 vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOps)
 {
@@ -138,7 +140,8 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 		if(op->getScheduledTime() > i)
 			i = op->getScheduledTime();
 	}
-	int numBits = int(pow(i+2, .5));
+    int numBits = int(pow(i+2, .5));
+//    int numBits = 3;
 
 	oFile << "   parameter S_CycleEnd = " << i + 1 << "," << endl;
 	while (i >> 0) {
@@ -172,7 +175,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 		}
 		for (Operation* op : *allOps) {
 			if (op->getScheduledTime() == j) {
-				if (op->getLoopContain() > 0) {
+				if (op->getLoopContain() == 1) {
 					//Some type of loop which type
 					if(op->getloopType().find("if") != string::npos)
 						oFile << "	      " << "if(" << op->getloopVar() << ") begin " << endl;
@@ -182,8 +185,18 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 					loopFound = true;
 					//continue;
 				}
+                if (op->getLoopContain() == 2) {
+                    for (Operation* op2 : *allOps) {
+                        if (op2->getLoopContain() == 1) {
+                            std::string temp = op2->getloopVar();
+                            oFile << "          " << "if(" << temp << ") begin " << endl;
+                            break;
+                        }
+                    }
+                    oFile << "                 " << "if(" << op->getloopVar() << ") begin " << endl;
+                }
 				oFile << "	      " << op->getOperationOutput() << ";" << endl;
-				//Need to check if next operation is in the loop other wise end.
+                //Need to check if next operation is in the loop other ;wise end.
 				if (op->getLoopContain() > 0) {
 					oFile << "	      end" << endl;
 				}
