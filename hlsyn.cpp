@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
    schedule_ALAP(*allOperations, atoi(argv[2]));
    computeProbabilities(*allOperations, atoi(argv[2]));
    vector<Resource> resDistr = computeTypeDistributions(*allOperations, atoi(argv[2]));
-
+	computeForces(resDistr, *allOperations);
 	// Evan's part (actual comment TBD)
 
 	// writing to output file
