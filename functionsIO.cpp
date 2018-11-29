@@ -343,7 +343,9 @@ void dependentOperation(Operation *currOperation, vector<Operation*> *allOperati
 		//Check all output vars against inputs
 		//printf("%lu", currOp.getInputs().size());
 		for (j = 0; j < currOp.getInputs().size(); j++) {
-			if (currOp.getInputs().at(j).getName().compare((allOperations)->at(i)->getOutput().getName()) == 0) {
+			if (currOp.getInputs().at(j).getName().compare((allOperations)->at(i)->getOutput().getName()) == 0
+			   && currOp.getLoopContain() == (allOperations)->at(i)->getLoopContain() 
+			   && currOp.getloopType().find((allOperations)->at(i)->getloopType())) {
 				//This node is a predecessor
 				(allOperations)->at(i)->addSuccessor(currOperation);
 				currOp.addPredecessor((*allOperations).at(i));
