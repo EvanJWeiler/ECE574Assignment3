@@ -78,7 +78,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	//oFile.open("C:/Users/lknot/OneDrive/Desktop/output.txt");
 	oFile.open(outFile);
 	oFile << "`timescale 1ns / 1ps" << endl;
-	oFile << "module TimeVerifier(Clk, Rst, CStart, CEnd, ErrorRst, Error, ";
+	oFile << "module TimeVerifier(";
 	string tempstring = "";
 	string temp2 = "";
 	for (Variable var : allVariables) {
@@ -86,7 +86,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 			tempstring += var.getName() + ", ";
 		}
 	}
-	oFile << tempstring << "Clk, Rst, CStart, CEnd, ErrorRst, Error);" << endl;
+	oFile << tempstring << " Clk, Rst, CStart, CEnd, ErrorRst, Error);" << endl;
 	oFile << "   input Clk, Rst;" << endl;
 	oFile << "   input CStart, CEnd, ErrorRst;" << endl;
 	oFile << "   output Error;" << endl << endl;
