@@ -53,6 +53,7 @@ void schedule_ALAP(std::vector<Operation*> &allOperations, int latency) {
                     associatedDelay = allOperations.at(i)->getSuccessors().at(j)->getDelay();
                 }
             }
+            if (currMin - associatedDelay < 0) std::terminate();
             if (allOperations.at(i)->getDelay() > 1) //case for delay greater than 1
                 allOperations.at(i)->setAlapTime(currMin - allOperations.at(i)->getDelay());
             else //generic case

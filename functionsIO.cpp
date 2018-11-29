@@ -202,24 +202,6 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 				}
 			}
 		}
-		//For those to be in if's in this state
-		int currLoop = 0;
-		/*if (loopFound == true) {
-			for (Operation* op : *allOps) {
-				if (op->getScheduledTime() == j) {
-					if (op->getLoopContain() > 0 && currLoop == 0) {
-						string ifS = "if";
-						if (op->getloopType().find("if") != string::npos)
-							oFile << "	      " << "if(" << op->getloopVar() << ") begin" << endl;
-						else
-							oFile << "	      " << "else begin" << endl;
-						currLoop += 1;
-					}
-					oFile << "	      " << op->getOperationOutput() << ";" << endl;
-				}
-			}
-			oFile << "	      end" << endl;
-		}*/
 		if (j < i)
 			oFile << "	      StateNext <= State" << j + 1 << ";" << endl;
 		else if (j == i)
