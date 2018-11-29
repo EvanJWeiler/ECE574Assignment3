@@ -65,6 +65,7 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 	}
 	else {
 		cout << "ERROR" << endl;
+		std::terminate();
 		//TODO: Return failure ;
 	}
 	*allOps = allOperations;
@@ -132,14 +133,14 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 			i = op->getScheduledTime();
 	}
 
-
+	int numBits = pow(i+2, .5);
 	oFile << "   parameter S_CycleEnd = " << i + 1 << "," << endl;
 	while (i >> 0) {
 		oFile << "	     State" << i << " = " << i << "," << endl;
 		i = i - 1;
 	}
 	oFile << "	     S_Wait = 0;" << endl;
-	oFile << "   reg [2:0] State, StateNext;" << endl;
+	oFile << "   reg [" << numBits << ":0] State, StateNext;" << endl;
 	oFile << endl << endl;
 	oFile << "always @(CStart, CEnd, ErrorRst, Error) begin";
 	oFile << endl << endl;
@@ -296,7 +297,7 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 			}
 			if (validVar == false) {
 				cout << "ERROR" << endl;
-				//TODO: Return a failure code
+				std::terminate();//TODO: Return a failure code
 			}
 		}
 		//Get the operand (= for reg, +,-... for others)
