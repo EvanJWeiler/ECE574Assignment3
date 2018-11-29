@@ -157,10 +157,33 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 				oFile << "	      " << op->getOperationOutput() << ";" << endl;
 			}
 		}
+		if (j < i)
+			oFile << "	      StateNext < = " << j + 1 << ";" << endl;
+		else if (j == i)
+			oFile << "	      StateNext <= S_CycleEnd;" << endl;
+		oFile << "	   end" << endl;
 		state1 = false;
 		j = j + 1;
 	}
+	oFile << "	   S_CycleEnd: begin" << endl;
+	oFile << "	      if(Rst == 1)" << endl;
+	oFile << "	         StateNext <= Wait;" << endl;
+	oFile << "	      else" << endl;
+	oFile << "	         StateNext <= S_CycleEnd;" << endl;
+	oFile << "	   end" << endl;
+	oFile << "	endcase" << endl;
+	oFile << "   end" << endl;
 
+	oFile << "   always @(posedge Clk) begin" << endl;
+	oFile << "	if (Rst == 1) begin" << endl;
+	oFile << "	   State <= S_Wait;" << endl;
+	oFile << "	end" << endl;
+	oFile << "	else begin" << endl;
+	oFile << "	   State <= StateNext;" << endl;
+	oFile << "	end" << endl;
+	oFile << "   end" << endl;
+
+	oFile << "endmodule" << endl;
 	oFile.close();
 }
 
