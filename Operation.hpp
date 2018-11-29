@@ -33,8 +33,8 @@ private:
 
 public:
 	Operation() { //default constructor
-		std::string operation = "Dummy";
-		int delay = -1;
+		this->operation = "Dummy";
+		this->delay = -1;
 	}
 	Operation(std::string operation, std::vector<Variable> inputs, Variable output) {
 		this->operation = operation;

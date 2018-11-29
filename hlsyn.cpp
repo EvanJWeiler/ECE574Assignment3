@@ -35,8 +35,7 @@ int main(int argc, char *argv[]) {
 	allVariables = inputFileToVariables(argv[1], (allOperations));
 	
 	// Compute dependency for operations.
-	int i;
-	for (i = 0; i < (*allOperations).size(); i++) {
+	for (unsigned int i = 0; i < (*allOperations).size(); i++) {
 		dependentOperation((allOperations)->at(i), (allOperations));
 	}
 

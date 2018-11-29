@@ -162,7 +162,6 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	oFile << "	   end" << endl;
 	int j = 1;
 	bool state1 = false;
-	bool loopFound = false;
 	for (Operation* op : *allOps) {
 		if (op->getScheduledTime() > i)
 			i = op->getScheduledTime();
@@ -182,7 +181,6 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 					else
 						oFile << "	      " << "else begin " << endl;
 					//currLoop = op->getLoopContain();
-					loopFound = true;
 					//continue;
 				}
                 if (op->getLoopContain() == 2) {
@@ -209,7 +207,6 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 		oFile << "	   end" << endl;
 
 		state1 = false;
-		loopFound = false;
 		j = j + 1;
 	}
 
@@ -246,7 +243,7 @@ vector<Variable> compileListOfVariables(string line, vector<Variable> allVariabl
 
 	size_t begin = bitWidth.find_first_of("01234456789");
 	tempVar.setUnSigned(false);	//Needs to be set false again after seeing an unsigned number
-	while ((pos = varNames.find(delimiter)) != string::npos) {
+	while ((pos = varNames.find(delimiter)) != (int)string::npos) {
 		tempVar.setVarType(currType);
 		if (bitWidth.at(0) == 'U')
 			tempVar.setUnSigned(true);
@@ -256,7 +253,7 @@ vector<Variable> compileListOfVariables(string line, vector<Variable> allVariabl
 		varNames.erase(0, pos + delimiter.length());
 		tempVar.setName(currName);
 
-		for (int i = 0; i < tempVar.getName().length(); i++) {//new needs testing
+		for (unsigned int i = 0; i < tempVar.getName().length(); i++) {//new needs testing
 			if (isspace(tempVar.getName().at(i))) {
 				if (!isspace(tempVar.getName().at(i - 1)))
 					tempVar.setName(tempVar.getName().substr(0, (i)));
@@ -272,7 +269,7 @@ vector<Variable> compileListOfVariables(string line, vector<Variable> allVariabl
 			tempVar.setUnSigned(true);
 		tempVar.setBitWidth(stoi(bitWidth.substr(begin, bitWidth.length() - 1)));
 		tempVar.setName(varNames);
-		for (int i = 0; i < tempVar.getName().length(); i++) {//new needs testing
+		for (unsigned int i = 0; i < tempVar.getName().length(); i++) {//new needs testing
 			if (isspace(tempVar.getName().at(i))) {
 				if (!isspace(tempVar.getName().at(i - 1)))
 					string temp = tempVar.getName().substr(0, i);
@@ -291,7 +288,6 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 	int maxDatawidth, int operandCount, string loopType, string loopVar, bool flagIncDec) {
 	istringstream opStream(line);
 	istringstream tempStream(line);
-	int i;
 	if (line.compare("") == 0) //Continue on empty lines
 		return;
 	vector<Operation*> allOps = *allOperations;
@@ -314,7 +310,7 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 	while (opStream >> val) {
 		//Check the variables validity
 		if (count == 0 || count == 2 || count == 4 || count == 6) {
-			for (i = 0; i < allVariables.size(); i++) {
+			for (unsigned int i = 0; i < allVariables.size(); i++) {
 				//Make sure var exists
 				validVar = false; //reset validVar flag after each iteration otherwise one valid var will make whole circuit "valid"
 				if (allVariables.at(i).getName().compare(val) == 0) {
@@ -369,17 +365,16 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 //Function will set the currOperations predecessor nodes and then set it as a successor of any of these nodes
 void dependentOperation(Operation *currOperation, vector<Operation*> *allOperations) {
 	Operation currOp = *currOperation;
-	int i, j;
 	bool alreadyIn = false, passedCurrOp = false, added = false;
 	
 	//Null Check
 	if ((*allOperations).empty() == true) return;
 
-	for (i = 0; i < (*allOperations).size(); i++) {
+	for (unsigned int i = 0; i < (*allOperations).size(); i++) {
 		added = false;
 		//Check all output vars against inputs
 		//Other loops cannot be predecessors but loops above them are.
-		for (j = 0; j < currOp.getInputs().size(); j++) {
+		for (unsigned int j = 0; j < currOp.getInputs().size(); j++) {
 			if ((currOp.getInputs().at(j).getName().compare((allOperations)->at(i)->getOutput().getName()) == 0)) {
 				alreadyIn = false;
 				//Check that its not already in the pred node list

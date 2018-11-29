@@ -24,7 +24,7 @@ void schedule_ASAP(std::vector<Operation*> &allOperations) {
         if (allOperations.at(i)->getPredecessors().size() == 0)
             allOperations.at(i)->setAsapTime(1);
         else {
-            for (int j = 0; j < allOperations.at(i)->getPredecessors().size(); j++) {
+            for (unsigned int j = 0; j < allOperations.at(i)->getPredecessors().size(); j++) {
                 if (allOperations.at(i)->getPredecessors().at(j)->getAsapTime() >= maxAsap) {
                     maxAsap = allOperations.at(i)->getPredecessors().at(j)->getAsapTime();
                     associatedDelay = allOperations.at(i)->getPredecessors().at(j)->getDelay();
@@ -47,7 +47,7 @@ void schedule_ALAP(std::vector<Operation*> &allOperations, int latency) {
         if (allOperations.at(i)->getSuccessors().size() == 0)
             allOperations.at(i)->setAlapTime(latency);
         else {
-            for (int j = 0; j < allOperations.at(i)->getSuccessors().size(); j++) {
+            for (unsigned int j = 0; j < allOperations.at(i)->getSuccessors().size(); j++) {
                 if (allOperations.at(i)->getSuccessors().at(j)->getAlapTime() < currMin) {
                     currMin = allOperations.at(i)->getSuccessors().at(j)->getAlapTime();
                     associatedDelay = allOperations.at(i)->getSuccessors().at(j)->getDelay();
@@ -94,7 +94,7 @@ std::vector<Resource> computeTypeDistributions(std::vector<Operation*> &allOpera
         }
     }
     
-    for (unsigned int ts = 0; ts < latency; ++ts) { //for every timestep
+    for (int ts = 0; ts < latency; ++ts) { //for every timestep
         for (unsigned int i = 0; i < allOperations.size(); ++i) { //for every operation
             if (allOperations.at(i)->getOperation() == "*") //following else ifs map to resources declared above
                 resDistr.at(1).addToProbabilityAtTimeStamp(allOperations.at(i)->getProbabilities().at(ts), ts);
@@ -189,7 +189,7 @@ void computeForces(std::vector<Resource> &resourceDist, std::vector<Operation*> 
 
     //combining forces
     for (auto &op : allOps) {
-        for (unsigned int i = op->getAsapTime(); i < op->getAlapTime(); i++) {
+        for (int i = op->getAsapTime(); i < op->getAlapTime(); i++) {
             op->addToForceAt(i, op->getSuccForceAt(i) + op->getPredForceAt(i));
         }
     }
