@@ -28,7 +28,7 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 void dependentOperation(Operation *currOperation, vector<Operation*> *allOperations);
 
 //File Output
-void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operations*> *allOps);
+void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operation*> *allOps);
 
 
 #endif
