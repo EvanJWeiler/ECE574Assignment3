@@ -336,19 +336,43 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 void dependentOperation(Operation *currOperation, vector<Operation*> *allOperations) {
 	Operation currOp = *currOperation;
 	int i, j;
+	bool alreadyIn = false, passedCurrOp = false, added = false;
+
 	//Null Check
 	if ((*allOperations).empty() == true) return;
 
 	for (i = 0; i < (*allOperations).size(); i++) {
+		added = false;
 		//Check all output vars against inputs
-		//printf("%lu", currOp.getInputs().size());
+		//Other loops cannot be predecessors but loops above them are.
 		for (j = 0; j < currOp.getInputs().size(); j++) {
-			if (currOp.getInputs().at(j).getName().compare((allOperations)->at(i)->getOutput().getName()) == 0
-			   && currOp.getLoopContain() == (allOperations)->at(i)->getLoopContain() 
-			   && currOp.getloopType().find((allOperations)->at(i)->getloopType())) {
+			if ((currOp.getInputs().at(j).getName().compare((allOperations)->at(i)->getOutput().getName()) == 0)) {
+				alreadyIn = false;
+				//Check that its not already in the pred node list
+				for (Operation* pred : currOp.getPredecessors()) {
+					if ((allOperations)->at(i)->getOperationOutput().find(pred->getOperationOutput()) != string::npos) {
+						alreadyIn = true;
+					}
+				}
 				//This node is a predecessor
+				if (alreadyIn == false) {
+					(allOperations)->at(i)->addSuccessor(currOperation);
+					currOp.addPredecessor((*allOperations).at(i));
+					added = true;
+				}
+			}
+		}
+		if (currOp.getLoopContain() > 0 && added == false) {
+			if (currOp.getOperationOutput().find((allOperations)->at(i)->getOperationOutput()) != string::npos) {
+				passedCurrOp = true;
+			}
+			else if (passedCurrOp == false && (allOperations)->at(i)->getLoopContain() == 0) {
 				(allOperations)->at(i)->addSuccessor(currOperation);
 				currOp.addPredecessor((*allOperations).at(i));
+			}
+			else if (passedCurrOp == true && (allOperations)->at(i)->getLoopContain() == 0) {
+				(allOperations)->at(i)->addPredecessor(currOperation);
+				currOp.addSuccessor((*allOperations).at(i));
 			}
 		}
 	}
