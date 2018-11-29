@@ -213,6 +213,10 @@ void scheduleNodes(std::vector<Operation*> &allOps) {
             }
         }
 
+        for (auto &pred : allOps.at(i)->getPredecessors()) {
+            
+        }
+
         allOps.at(i)->scheduleAt(lowIndex);
     }
 }
