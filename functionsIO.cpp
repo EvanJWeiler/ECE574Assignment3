@@ -72,16 +72,16 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 }
 
 void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operation*> *allOps){
-	ofstream oFile;
+		ofstream oFile;
 	int i = 1;
 	//oFile.open("C:/Users/lknot/OneDrive/Desktop/output.txt");
 	oFile.open(outFile);
-	oFile << "'timescale 1ns / 1ps" << endl;
-	oFile << "module TimeVerifier(Clk, Rst, ";
+	oFile << "`timescale 1ns / 1ps" << endl;
+	oFile << "module TimeVerifier(Clk, Rst, CStart, CEnd, ErrorRst, Error, ";
 	string tempstring = "";
 	string temp2 = "";
 	for (Variable var : allVariables) {
-		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0 ) {
+		if (var.getVarType().compare("input") == 0 || var.getVarType().compare("output") == 0) {
 			tempstring += var.getName() + ", ";
 		}
 	}
@@ -90,35 +90,34 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	oFile << "   input CStart, CEnd, ErrorRst;" << endl;
 	oFile << "   output Error;" << endl << endl;
 	for (Variable var : allVariables) {
-			if (var.getVarType().compare("output") == 0) {
-				oFile << "   " << var.getVarType();
-				oFile << " reg";
-				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
-			}
-			if (var.getVarType().compare("variable") == 0) {
-				oFile << "   " << var.getVarType();
-				if (var.getName().length() == 1) {
-					oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
-				}
-				else {
-					oFile << " " <<  "unsigned "  << var.getName() << ";" << endl;
-				}
-			}
-
-			if ((var.getUnSigned() == false) && var.getVarType().compare("variable") != 0 && var.getVarType().compare("output") != 0) {
-				oFile << "   " << var.getVarType();
+		if (var.getVarType().compare("output") == 0) {
+			oFile << "   " << var.getVarType();
+			oFile << " reg";
+			oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+		}
+		if (var.getVarType().compare("variable") == 0) {
+			oFile << "   " << "reg";
+			if (var.getName().length() == 1) {
 				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 			}
 			else {
-				cout << ";" << endl;
+				oFile << " " << "unsigned " << var.getName() << ";" << endl;
 			}
+		}
+
+		if ((var.getUnSigned() == false) && var.getVarType().compare("variable") != 0 && var.getVarType().compare("output") != 0) {
+			oFile << "   " << var.getVarType();
+			oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+		}
+		else {
+			cout << ";" << endl;
+		}
 	}
 	oFile << endl << endl << endl;
-	//find max not last
 	for (Operation* op : *allOps) {
-		if (op->getScheduledTime() > i)
+		if(op->getScheduledTime() > i)
 			i = op->getScheduledTime();
-	}	
+	}
 
 
 	oFile << "   parameter S_CycleEnd = " << i + 1 << "," << endl;
@@ -131,21 +130,20 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	oFile << endl << endl;
 	oFile << "always @(CStart, CEnd, ErrorRst, Error) begin";
 	oFile << endl << endl;
-	oFile << "	case (State) begin" << endl;
-	oFile << "	   Wait: begin" << endl;
+	oFile << "	case(State)" << endl;
+	oFile << "	   S_Wait: begin" << endl;
 	oFile << "	      if(CStart == 1)" << endl;
 	oFile << "	         StateNext <= State1;" << endl;
 	oFile << "	      else" << endl;
-	oFile << "	         StateNext <= wait;" << endl;
+	oFile << "	         StateNext <= S_Wait;" << endl;
 	oFile << "	   end" << endl;
 	int j = 1;
 	bool state1 = false;
-	//find max not last time
+
 	for (Operation* op : *allOps) {
 		if (op->getScheduledTime() > i)
 			i = op->getScheduledTime();
 	}	
-	
 	//for (Variable var : allVariables)
 	while (j <= i) {
 		for (Operation* op : *allOps) {
@@ -157,23 +155,24 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 				oFile << "	      " << op->getOperationOutput() << ";" << endl;
 			}
 		}
-		if (j < i)
-			oFile << "	      StateNext < = " << j + 1 << ";" << endl;
+		if(j < i)
+				oFile << "	      StateNext <= State" << j + 1 << ";" << endl;
 		else if (j == i)
 			oFile << "	      StateNext <= S_CycleEnd;" << endl;
 		oFile << "	   end" << endl;
+
 		state1 = false;
 		j = j + 1;
 	}
+
 	oFile << "	   S_CycleEnd: begin" << endl;
 	oFile << "	      if(Rst == 1)" << endl;
-	oFile << "	         StateNext <= Wait;" << endl;
+	oFile << "	         StateNext <= S_Wait;" << endl;
 	oFile << "	      else" << endl;
 	oFile << "	         StateNext <= S_CycleEnd;" << endl;
 	oFile << "	   end" << endl;
 	oFile << "	endcase" << endl;
 	oFile << "   end" << endl;
-
 	oFile << "   always @(posedge Clk) begin" << endl;
 	oFile << "	if (Rst == 1) begin" << endl;
 	oFile << "	   State <= S_Wait;" << endl;
@@ -182,8 +181,8 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	oFile << "	   State <= StateNext;" << endl;
 	oFile << "	end" << endl;
 	oFile << "   end" << endl;
-
 	oFile << "endmodule" << endl;
+
 	oFile.close();
 }
 
