@@ -214,7 +214,9 @@ void scheduleNodes(std::vector<Operation*> &allOps) {
         }
 
         for (auto &pred : allOps.at(i)->getPredecessors()) {
-            
+            if (lowIndex <= pred->getScheduledTime() + pred->getDelay() - 1) {
+                lowIndex += pred->getDelay() - 1;
+            }
         }
 
         allOps.at(i)->scheduleAt(lowIndex);
