@@ -72,7 +72,7 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 }
 
 void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operation*> *allOps){
-		ofstream oFile;
+	ofstream oFile;
 	int i = 1;
 	//oFile.open("C:/Users/lknot/OneDrive/Desktop/output.txt");
 	oFile.open(outFile);
@@ -93,21 +93,34 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 		if (var.getVarType().compare("output") == 0) {
 			oFile << "   " << var.getVarType();
 			oFile << " reg";
-			oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+			if(var.getUnSigned() == false)
+				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+			else
+				oFile << " unsigned [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 		}
 		if (var.getVarType().compare("variable") == 0) {
 			oFile << "   " << "reg";
-			if (var.getName().length() == 1) {
+			if (var.getName().length() == 1 && var.getUnSigned() == false) {
 				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 			}
+			else if(var.getUnSigned() == false) {
+				oFile << " " << var.getName() << ";" << endl;
+			}
+			else if (var.getName().length() == 1 && var.getUnSigned() == true) {
+				oFile << " unsigned [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+			}
 			else {
-				oFile << " " << "unsigned " << var.getName() << ";" << endl;
+				oFile << " unsigned " << var.getName() << ";" << endl;
 			}
 		}
 
 		if ((var.getUnSigned() == false) && var.getVarType().compare("variable") != 0 && var.getVarType().compare("output") != 0) {
 			oFile << "   " << var.getVarType();
 			oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
+		}
+		if ((var.getUnSigned() == true) && var.getVarType().compare("variable") != 0 && var.getVarType().compare("output") != 0) {
+			oFile << "   " << var.getVarType();
+			oFile << " unsigned [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 		}
 		else {
 			cout << ";" << endl;
