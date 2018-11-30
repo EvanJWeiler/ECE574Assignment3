@@ -47,7 +47,13 @@ int main(int argc, char *argv[]) {
 	computeForces(resDistr, *allOperations);
 	scheduleNodes(*allOperations);
 	// Evan's part (actual comment TBD)
-
+	//For latency Error Case 
+	for (Operation *currOp : *allOperations) {
+		if (currOp->getAsapTime() > atoi(argv[2])) {
+			cout << "Error: Latency issue" << endl;
+			return EXIT_FAILURE;
+		}
+	}
 	// writing to output file
 	
     outputFileCreate(allVariables, argv[3], allOperations);
