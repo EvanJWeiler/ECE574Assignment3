@@ -31,8 +31,10 @@ void schedule_ASAP(std::vector<Operation*> &allOperations) {
 					//Edge case for checking ALU then MUL
 					if (maxAsap + associatedDelay > currMax)
 						currMax = maxAsap + associatedDelay;
+					//if (currMax == 5) currMax -= 1;
 				}
 			}
+			if (currMax == 5) cout << "occured" << endl;
 			allOperations.at(i)->setAsapTime(currMax);
 			//            allOperations.at(i).setAsapTime(maxAsap + associatedDelay);
 		}
@@ -53,12 +55,12 @@ void schedule_ALAP(std::vector<Operation*> &allOperations, int latency) {
 					associatedDelay = allOperations.at(i)->getSuccessors().at(j)->getDelay();
 				}
 			}
-			//            if (currMin - associatedDelay < 0) std::terminate();
 			if (allOperations.at(i)->getDelay() > 1) //case for delay greater than 1
 				allOperations.at(i)->setAlapTime(currMin - allOperations.at(i)->getDelay());
 			else //generic case
 				allOperations.at(i)->setAlapTime(currMin - associatedDelay);
-			if (allOperations.at(i)->getAlapTime() <= 0) allOperations.at(i)->setAlapTime(1);
+			if (allOperations.at(i)->getAlapTime() < 0)
+				allOperations.at(i)->setAlapTime(1);
 		}
 	}
 }
@@ -66,7 +68,7 @@ void schedule_ALAP(std::vector<Operation*> &allOperations, int latency) {
 void computeProbabilities(std::vector<Operation*> &ops, int latency) {
 	for (unsigned int i = 0; i < ops.size(); i++) {
 		for (int j = 1; j <= latency; j++) {
-			if (j >= ops.at(i)->getAsapTime() and j <= ops.at(i)->getAlapTime()) {
+			if (j >= ops.at(i)->getAsapTime() && j <= ops.at(i)->getAlapTime()) {
 				ops.at(i)->addProbability(1 / float(ops.at(i)->getAlapTime() - ops.at(i)->getAsapTime() + 1));
 			}
 			else {
@@ -117,7 +119,7 @@ void computeForces(std::vector<Resource> &resourceDist, std::vector<Operation*> 
 		if (op->getOperation() == "*") {
 			resourceIndex = 1;
 		}
-		else if (op->getOperation() == "/" or op->getOperation() == "%") {
+		else if (op->getOperation() == "/" || op->getOperation() == "%") {
 			resourceIndex = 2;
 		}
 		else {
@@ -146,7 +148,7 @@ void computeForces(std::vector<Resource> &resourceDist, std::vector<Operation*> 
 		if (op->getOperation() == "*") {
 			resourceIndex = 1;
 		}
-		else if (op->getOperation() == "/" or op->getOperation() == "%") {
+		else if (op->getOperation() == "/" || op->getOperation() == "%") {
 			resourceIndex = 2;
 		}
 		else {
@@ -175,7 +177,7 @@ void computeForces(std::vector<Resource> &resourceDist, std::vector<Operation*> 
 		if (op->getOperation() == "*") {
 			resourceIndex = 1;
 		}
-		else if (op->getOperation() == "/" or op->getOperation() == "%") {
+		else if (op->getOperation() == "/" || op->getOperation() == "%") {
 			resourceIndex = 2;
 		}
 		else {
@@ -223,11 +225,11 @@ void scheduleNodes(std::vector<Operation*> &allOps) {
 			}
 		}
 
-		/*for (auto &pred : allOps.at(i)->getPredecessors()) {
-			if (lowIndex < pred->getScheduledTime() + pred->getDelay()) {
-				lowIndex += pred->getDelay();
-			}
-		}*/
+		//for (auto &pred : allOps.at(i)->getPredecessors()) {
+		//	if (lowIndex < pred->getScheduledTime() + pred->getDelay()) {
+		//		lowIndex += pred->getDelay();
+		//	}
+		//}
 
 		allOps.at(i)->scheduleAt(lowIndex);
 	}

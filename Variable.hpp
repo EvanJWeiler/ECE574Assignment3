@@ -6,27 +6,27 @@
 
 class Variable {
 private:
-    std::string name;
-    std::string vartype;
-    int bitwidth;
-    bool unSigned;
-    std::vector<Variable> dependencies;
-    
+	std::string name;
+	std::string vartype;
+	int bitwidth;
+	bool unSigned;
+	std::vector<Variable> dependencies;
+
 public:
 	Variable() { //default constructor
 		this->name = "undefined";
 		this->vartype = "undefined";
 		this->bitwidth = 0;
-        this->unSigned = false;
+		this->unSigned = false;
 	}
 
 	Variable(std::string name, std::string vartype, int bitwidth, bool unSigned) {
 		this->name = name;
 		this->vartype = vartype;
 		this->bitwidth = bitwidth;
-        this->unSigned = unSigned;
+		this->unSigned = unSigned;
 	}
-    
+
 	//getters
 	std::string getName() const {
 		return this->name;
@@ -37,14 +37,14 @@ public:
 	int getBitWidth() const {
 		return this->bitwidth;
 	}
-    bool getUnSigned() const {
-        return this->unSigned;
-    }
-    std::vector<Variable> getDependecies() const {
-        return this->dependencies;
-    }
-    
-    //setters
+	bool getUnSigned() const {
+		return this->unSigned;
+	}
+	std::vector<Variable> getDependecies() const {
+		return this->dependencies;
+	}
+
+	//setters
 	void setName(std::string name) {
 		this->name = name;
 	}
@@ -54,9 +54,9 @@ public:
 	void setBitWidth(int bitwidth) {
 		this->bitwidth = bitwidth;
 	}
-    void setUnSigned(bool unSigned) {
-        this->unSigned = unSigned;
-    }
+	void setUnSigned(bool unSigned) {
+		this->unSigned = unSigned;
+	}
 	void addToDependencies(Variable var) {
 		this->dependencies.push_back(var);
 	}

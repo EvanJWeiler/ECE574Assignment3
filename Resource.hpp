@@ -8,38 +8,38 @@
 
 class Resource {
 private:
-    std::string operation;
-    std::vector<float> sumOfProbsForTimeStep;
+	std::string operation;
+	std::vector<float> sumOfProbsForTimeStep;
 
 public:
-    Resource() {
-        this->operation = "undefined";
-    }
-    Resource(std::string operation)  {
-        this->operation = operation;
-    }
-    
-    //getters
-    std::string getOperation() const {
-        return this->operation;
-    }
+	Resource() {
+		this->operation = "undefined";
+	}
+	Resource(std::string operation) {
+		this->operation = operation;
+	}
 
-    std::vector<float> getProbabilities() {
-        return this->sumOfProbsForTimeStep;
-    }
+	//getters
+	std::string getOperation() const {
+		return this->operation;
+	}
 
-    //setters
-    void setOperation(std::string operation) {
-        this->operation = operation;
-    }
+	std::vector<float> getProbabilities() {
+		return this->sumOfProbsForTimeStep;
+	}
 
-    void addProbability(float probability) {
-        this->sumOfProbsForTimeStep.push_back(probability);
-    }
+	//setters
+	void setOperation(std::string operation) {
+		this->operation = operation;
+	}
 
-    void addToProbabilityAtTimeStamp(float probability, int timeStamp) {
-        this->sumOfProbsForTimeStep.at(timeStamp) = probability + this->sumOfProbsForTimeStep.at(timeStamp);
-    }
+	void addProbability(float probability) {
+		this->sumOfProbsForTimeStep.push_back(probability);
+	}
+
+	void addToProbabilityAtTimeStamp(float probability, int timeStamp) {
+		this->sumOfProbsForTimeStep.at(timeStamp) = probability + this->sumOfProbsForTimeStep.at(timeStamp);
+	}
 };
 
 #endif /* Resource_hpp */

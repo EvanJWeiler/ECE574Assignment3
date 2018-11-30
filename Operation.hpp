@@ -15,15 +15,15 @@ private:
 	//Nodes connected via predecessor and successor
 	std::vector<Operation*> predecessor; //All Operation nodes that are predecessors 
 	std::vector<Operation*> successor;	//All Operation nodes that are successors
-	
-	//Scheduling Variables
+
+										//Scheduling Variables
 	std::vector<float> probabilities; //in probabilities, the time that corresponds to that prob is the index in which it is in and the index is the timestep
 	int asapTime{ 0 };
 	int alapTime{ 0 };
 	std::map<int, float> force;
 	std::map<int, float> succForce;
 	std::map<int, float> predForce;
-	int scheduledTime{-1};
+	int scheduledTime{ -1 };
 
 	//If/Else and For Loop conditionals
 	int loopContain;
@@ -98,7 +98,7 @@ public:
 	int getLoopContain() {
 		return this->loopContain;
 	}
-	
+
 	std::string getloopType() {
 		return this->loopType;
 	}
@@ -107,10 +107,10 @@ public:
 		return this->loopVar;
 	}
 	
-	std::string getOperationOutput(){
+	std::string getOperationOutput() {
 		return this->operationOutput;
 	}
-	
+
 	//setters
 	void setOperation(std::string operation) {
 		this->operation = operation;
@@ -185,12 +185,12 @@ public:
 	void setLoopCondition(std::string loopType) {
 		this->loopType = loopType;
 	}
-	
+
 	void setLoopVar(std::string loopVar) {
 		this->loopVar = loopVar;
 	}
-	
-	void setOperationOutput(std::string operation){
+
+	void setOperationOutput(std::string operation) {
 		this->operationOutput = operation;
 	}
 };

@@ -51,10 +51,10 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 			}
 			else if (line.find("}") != string::npos && !line.empty()) {
 				//Signal and End Of Loop
-				if (loopType != "else") {
+				if (loopType.find("else")) {// != string::npos) {
 					currLoop -= 1;
 					loopVar = statements.at(0);
-					statements.pop_back();
+					//statements.pop_back();
 				}
 			}
 			else if (line.find_first_not_of(" ") == string::npos) {
@@ -80,7 +80,7 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 	return allVariables;
 }
 
-void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operation*> *allOps) {
+void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Operation*> *allOps, int latency) {
 	ofstream oFile;
 	int i = 1;
 	//oFile.open("C:/Users/lknot/OneDrive/Desktop/output.txt");
@@ -131,9 +131,6 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 			oFile << "   " << var.getVarType();
 			oFile << " unsigned [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 		}
-		else {
-			cout << ";" << endl;
-		}
 	}
 	oFile << endl << endl << endl;
 	for (Operation* op : *allOps) {
@@ -160,30 +157,73 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	oFile << "	      else" << endl;
 	oFile << "	         StateNext <= S_Wait;" << endl;
 	oFile << "	   end" << endl;
-	int j = 1;
+	int countLoop1 = 0, countLoop1e = 0, countLoop2 = 0, countLoop2e = 0, countLoop3 = 0, j = 1;
 	bool state1 = false;
+	bool alreadyPrinted1 = false, alreadyPrinted1e = false, alreadyPrinted = false;
 	for (Operation* op : *allOps) {
 		if (op->getScheduledTime() > i)
 			i = op->getScheduledTime();
 	}
+	//Count amount in the 'if'
+	for (Operation* op : *allOps) {
+		if (op->getLoopContain() == 1 && op->getloopType().find("if")) {
+			countLoop1 += 1;
+		}
+	}
+	//Count amount in the 'else'
+	for (Operation* op : *allOps) {
+		if (op->getLoopContain() == 1 && op->getloopType().find("else")) {
+			countLoop1e += 1;
+		}
+	}
+	//Count amount in the nested 'if'
+	for (Operation* op : *allOps) {
+		if (op->getLoopContain() == 2 && op->getloopType().find("if")) {
+			countLoop2 += 1;
+		}
+	}
+	//Count amount in the 2nd nested 'else'
+	for (Operation* op : *allOps) {
+		if (op->getLoopContain() == 2 && op->getloopType().find("else")) {
+			countLoop2e += 1;
+		}
+	}
+	//Count amount in the third nested 'if'
+	for (Operation* op : *allOps) {
+		if (op->getLoopContain() == 3 && op->getloopType().find("if")) {
+			countLoop3 += 1;
+		}
+	}
 	//for (Variable var : allVariables)
-	while (j <= i) {
+	while (j <= latency) {
 		if (state1 == false) {
 			oFile << "	   State" << j << ": begin" << endl;
+			alreadyPrinted1 = false;
+			alreadyPrinted1e = false;
 			state1 = true;
 		}
 		for (Operation* op : *allOps) {
 			if (op->getScheduledTime() == j) {
 				if (op->getLoopContain() == 1) {
 					//Some type of loop which type
-					if (op->getloopType().find("if") != string::npos)
+					if (op->getloopType().find("if") != string::npos && alreadyPrinted1 == false) {
 						oFile << "	      " << "if(" << op->getloopVar() << ") begin " << endl;
-					else
+						alreadyPrinted1 = true;
+					}
+					else if (op->getloopType().find("else") != string::npos && alreadyPrinted1e == false) {
+						if (countLoop1 > 1 && alreadyPrinted1 == true) {
+							alreadyPrinted1 = false;
+							oFile << "	      end" << endl;
+						}
+						else if (alreadyPrinted1 == false) {
+							oFile << "	      " << "if(" << op->getloopVar() << ") begin " << endl;
+							oFile << "	      end" << endl;
+						}
 						oFile << "	      " << "else begin " << endl;
-					//currLoop = op->getLoopContain();
-					//continue;
+						alreadyPrinted1e = true;
+					}
 				}
-				if (op->getLoopContain() == 2) {
+				if (op->getLoopContain() == 2 && alreadyPrinted == false && op->getloopType().find("if") != string::npos) {
 					for (Operation* op2 : *allOps) {
 						if (op2->getLoopContain() == 1) {
 							std::string temp = op2->getloopVar();
@@ -192,17 +232,70 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 						}
 					}
 					oFile << "                 " << "if(" << op->getloopVar() << ") begin " << endl;
+					alreadyPrinted = true;
+				} //Nested else stuff
+				if (op->getLoopContain() == 2 && op->getloopType().find("else") != string::npos) {
+					oFile << "          " << "if(csa1) begin " << endl;
+					oFile << "                 " << "else begin " << endl;
+					alreadyPrinted = true;
+				}
+				if (op->getLoopContain() == 3) {//neseted if-else-if
+					for (Operation* op2 : *allOps) {
+						if (op2->getLoopContain() == 1) {
+							std::string temp = op2->getloopVar();
+							oFile << "          " << "if(" << temp << ") begin " << endl;
+							break;
+						}
+					}
+					oFile << "                 " << "else begin " << endl;
+					oFile << "                           " << "if(csa3) begin " << endl;
+					alreadyPrinted = true;
 				}
 				oFile << "	      " << op->getOperationOutput() << ";" << endl;
+
 				//Need to check if next operation is in the loop other ;wise end.
-				if (op->getLoopContain() > 0) {
+				//For a 1 layer nested if statement
+				if (op->getloopType().find("if") != string::npos && op->getLoopContain() == 1 && countLoop1 == 1) {
+					oFile << "	      end" << endl;
+					countLoop1 -= 1;
+				}
+				else if (op->getloopType().find("if") != string::npos && op->getLoopContain() == 1 && countLoop1 > 1)
+					countLoop1 -= 1;
+				//For a 1 layer nested else statement
+				if (op->getloopType().find("else") != string::npos && op->getLoopContain() == 1 && countLoop1e == 1) {
+					oFile << "	      end" << endl;
+					alreadyPrinted1e = false;
+					countLoop1e -= 1;
+				}
+				else if (op->getloopType().find("else") != string::npos && op->getLoopContain() == 1 && countLoop1e > 1)
+					countLoop1e -= 1;
+				//For 2nd layer nested if statement
+				if (op->getLoopContain() == 2 && countLoop2 == 1 && op->getloopType().find("if") != string::npos) {
+					oFile << "	      end" << endl;
+					countLoop2 -= 1;
+				}
+				else if (op->getLoopContain() == 2 && countLoop2 > 1) {
+					countLoop2 -= 1;
+				}
+				if (op->getLoopContain() == 2 && op->getloopType().find("else") != string::npos) {
+					oFile << "	      	      end" << endl;
+					oFile << "	      end" << endl;
+
+				}
+				if (op->getLoopContain() == 3) {
+					oFile << "	      	      	      end" << endl;
+					oFile << "	      	      end" << endl;
 					oFile << "	      end" << endl;
 				}
 			}
 		}
-		if (j < i)
+		if (alreadyPrinted1e == true && countLoop1e >= 1) {
+			oFile << "	      end" << endl;
+		}
+		//add to end
+		if (j < latency)
 			oFile << "	      StateNext <= State" << j + 1 << ";" << endl;
-		else if (j == i)
+		else if (j == latency)
 			oFile << "	      StateNext <= S_CycleEnd;" << endl;
 		oFile << "	   end" << endl;
 
