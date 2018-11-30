@@ -39,6 +39,11 @@ int main(int argc, char *argv[]) {
 		dependentOperation((allOperations)->at(i), (allOperations));
 	}
 
+	
+	if ((*allOperations).size() == 0) {
+		cout << "ERROR: File Empty." << endl;
+		return EXIT_FAILURE;
+	}
 	// Send to the force directed scheduling.
    schedule_ASAP(*allOperations);
    schedule_ALAP(*allOperations, atoi(argv[2]));
