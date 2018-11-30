@@ -395,10 +395,10 @@ void dependentOperation(Operation *currOperation, vector<Operation*> *allOperati
 			if (currOp.getOperationOutput().find((allOperations)->at(i)->getOperationOutput()) != string::npos) {
 				passedCurrOp = true;
 			}
-			else if (passedCurrOp == false && (allOperations)->at(i)->getLoopContain() == 0) {
-				(allOperations)->at(i)->addSuccessor(currOperation);
-				currOp.addPredecessor((*allOperations).at(i));
-			}
+//            else if (passedCurrOp == false && (allOperations)->at(i)->getLoopContain() == 0) {
+//                (allOperations)->at(i)->addSuccessor(currOperation);
+//                currOp.addPredecessor((*allOperations).at(i));
+//            }
 			else if (passedCurrOp == true && (allOperations)->at(i)->getLoopContain() == 0) {
 				(allOperations)->at(i)->addPredecessor(currOperation);
 				currOp.addSuccessor((*allOperations).at(i));
