@@ -37,7 +37,7 @@ vector<Variable> inputFileToVariables(string fileName, vector<Operation*> *allOp
 				//Signal Going into an If statement, string for the variable.
 				ifNum += 1;
 				currLoop += 1;
-				loopType = "if"; 
+				loopType = "if";
 				firstInd = line.find("(");
 				secondInd = line.find(")");
 				loopVar = line.substr(firstInd + 2, secondInd - 6); //Fix when second if ends!!!
@@ -102,7 +102,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 		if (var.getVarType().compare("output") == 0) {
 			oFile << "   " << var.getVarType();
 			oFile << " reg";
-			if(var.getUnSigned() == false)
+			if (var.getUnSigned() == false)
 				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 			else
 				oFile << " unsigned [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
@@ -112,7 +112,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 			if (var.getName().length() == 1 && var.getUnSigned() == false) {
 				oFile << " [" << var.getBitWidth() - 1 << ":0] " << var.getName() << ";" << endl;
 			}
-			else if(var.getUnSigned() == false) {
+			else if (var.getUnSigned() == false) {
 				oFile << " " << var.getName() << ";" << endl;
 			}
 			else if (var.getName().length() == 1 && var.getUnSigned() == true) {
@@ -137,11 +137,11 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	}
 	oFile << endl << endl << endl;
 	for (Operation* op : *allOps) {
-		if(op->getScheduledTime() > i)
+		if (op->getScheduledTime() > i)
 			i = op->getScheduledTime();
 	}
-    int numBits = int(pow(i+2, .5));
-//    int numBits = 3;
+	int numBits = int(pow(i + 2, .5));
+	//    int numBits = 3;
 
 	oFile << "   parameter S_CycleEnd = " << i + 1 << "," << endl;
 	while (i >> 0) {
@@ -149,7 +149,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 		i = i - 1;
 	}
 	oFile << "	     S_Wait = 0;" << endl;
-	oFile << "   reg [" << numBits <<":0] State, StateNext;" << endl;
+	oFile << "   reg [" << numBits << ":0] State, StateNext;" << endl;
 	oFile << endl << endl;
 	oFile << "always @(CStart, CEnd, ErrorRst, Error) begin";
 	oFile << endl << endl;
@@ -165,7 +165,7 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 	for (Operation* op : *allOps) {
 		if (op->getScheduledTime() > i)
 			i = op->getScheduledTime();
-	}	
+	}
 	//for (Variable var : allVariables)
 	while (j <= i) {
 		if (state1 == false) {
@@ -176,25 +176,25 @@ void outputFileCreate(vector<Variable> allVariables, string outFile, vector<Oper
 			if (op->getScheduledTime() == j) {
 				if (op->getLoopContain() == 1) {
 					//Some type of loop which type
-					if(op->getloopType().find("if") != string::npos)
+					if (op->getloopType().find("if") != string::npos)
 						oFile << "	      " << "if(" << op->getloopVar() << ") begin " << endl;
 					else
 						oFile << "	      " << "else begin " << endl;
 					//currLoop = op->getLoopContain();
 					//continue;
 				}
-                if (op->getLoopContain() == 2) {
-                    for (Operation* op2 : *allOps) {
-                        if (op2->getLoopContain() == 1) {
-                            std::string temp = op2->getloopVar();
-                            oFile << "          " << "if(" << temp << ") begin " << endl;
-                            break;
-                        }
-                    }
-                    oFile << "                 " << "if(" << op->getloopVar() << ") begin " << endl;
-                }
+				if (op->getLoopContain() == 2) {
+					for (Operation* op2 : *allOps) {
+						if (op2->getLoopContain() == 1) {
+							std::string temp = op2->getloopVar();
+							oFile << "          " << "if(" << temp << ") begin " << endl;
+							break;
+						}
+					}
+					oFile << "                 " << "if(" << op->getloopVar() << ") begin " << endl;
+				}
 				oFile << "	      " << op->getOperationOutput() << ";" << endl;
-                //Need to check if next operation is in the loop other ;wise end.
+				//Need to check if next operation is in the loop other ;wise end.
 				if (op->getLoopContain() > 0) {
 					oFile << "	      end" << endl;
 				}
@@ -366,7 +366,7 @@ void compileListOfOperations(string line, vector<Variable> allVariables, vector<
 void dependentOperation(Operation *currOperation, vector<Operation*> *allOperations) {
 	Operation currOp = *currOperation;
 	bool alreadyIn = false, passedCurrOp = false, added = false;
-	
+
 	//Null Check
 	if ((*allOperations).empty() == true) return;
 
@@ -395,10 +395,10 @@ void dependentOperation(Operation *currOperation, vector<Operation*> *allOperati
 			if (currOp.getOperationOutput().find((allOperations)->at(i)->getOperationOutput()) != string::npos) {
 				passedCurrOp = true;
 			}
-//            else if (passedCurrOp == false && (allOperations)->at(i)->getLoopContain() == 0) {
-//                (allOperations)->at(i)->addSuccessor(currOperation);
-//                currOp.addPredecessor((*allOperations).at(i));
-//            }
+			//            else if (passedCurrOp == false && (allOperations)->at(i)->getLoopContain() == 0) {
+			//                (allOperations)->at(i)->addSuccessor(currOperation);
+			//                currOp.addPredecessor((*allOperations).at(i));
+			//            }
 			else if (passedCurrOp == true && (allOperations)->at(i)->getLoopContain() == 0) {
 				(allOperations)->at(i)->addPredecessor(currOperation);
 				currOp.addSuccessor((*allOperations).at(i));
